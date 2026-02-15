@@ -113,7 +113,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-1 flex-col items-center justify-center gap-10 px-4 pb-12">
+      <main className="flex flex-1 flex-col items-center justify-center gap-10 px-4 pb-16">
         {loading ? (
           <LoadingSkeleton />
         ) : allAnswered || !dilemma ? (
@@ -164,6 +164,89 @@ export default function Home() {
           </>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="pb-4 pt-2 text-center">
+        <FeedbackForm posthog={posthog} />
+      </footer>
+    </div>
+  );
+}
+
+function FeedbackForm({ posthog }: { posthog: ReturnType<typeof usePostHog> }) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!message.trim() || submitting) return;
+    setSubmitting(true);
+
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: message.trim() }),
+    });
+
+    if (res.ok) {
+      posthog.capture("feedback_submitted");
+      setSubmitted(true);
+      setMessage("");
+      setTimeout(() => {
+        setOpen(false);
+        setSubmitted(false);
+      }, 2000);
+    }
+    setSubmitting(false);
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="cursor-pointer text-xs text-muted-foreground transition-colors hover:text-foreground"
+      >
+        Feedback
+      </button>
+    );
+  }
+
+  return (
+    <div className="animate-fade-in-up mx-auto w-full max-w-sm px-4">
+      {submitted ? (
+        <p className="text-sm text-muted-foreground">Thanks for the feedback!</p>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="What could be better?"
+            maxLength={2000}
+            rows={3}
+            className="w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            autoFocus
+          />
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="cursor-pointer text-xs text-muted-foreground hover:text-foreground"
+            >
+              Cancel
+            </button>
+            <Button
+              type="submit"
+              size="sm"
+              className="rounded-full"
+              disabled={!message.trim() || submitting}
+            >
+              {submitting ? "Sending..." : "Send"}
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

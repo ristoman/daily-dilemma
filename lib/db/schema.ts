@@ -24,3 +24,10 @@ export const votes = pgTable("votes", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   sessionId: text("session_id").notNull(),
 });
+
+export const feedback = pgTable("feedback", {
+  id: serial("id").primaryKey(),
+  message: text("message").notNull(),
+  sessionId: text("session_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
