@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePostHog, useFeatureFlagVariantKey } from "posthog-js/react";
+import { usePostHog } from "posthog-js/react";
 import { Button } from "@/components/ui/button";
 
 type Dilemma = {
@@ -15,8 +15,6 @@ type Dilemma = {
 
 export default function Home() {
   const posthog = usePostHog();
-  const shareVariant = useFeatureFlagVariantKey("share-prompt-impact");
-  const showSharePrompt = shareVariant === "test";
   const [dilemma, setDilemma] = useState<Dilemma | null>(null);
   const [allAnswered, setAllAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -158,7 +156,6 @@ export default function Home() {
               <Results
                 dilemma={dilemma}
                 onNext={fetchDilemma}
-                showSharePrompt={showSharePrompt}
                 copied={copied}
                 setCopied={setCopied}
                 posthog={posthog}
@@ -174,14 +171,12 @@ export default function Home() {
 function Results({
   dilemma,
   onNext,
-  showSharePrompt,
   copied,
   setCopied,
   posthog,
 }: {
   dilemma: Dilemma;
   onNext: () => void;
-  showSharePrompt: boolean;
   copied: boolean;
   setCopied: (v: boolean) => void;
   posthog: ReturnType<typeof usePostHog>;
@@ -189,6 +184,14 @@ function Results({
   const total = dilemma.votes.a + dilemma.votes.b;
   const aPercent = total > 0 ? Math.round((dilemma.votes.a / total) * 100) : 50;
   const bPercent = total > 0 ? 100 - aPercent : 50;
+
+  const choice = dilemma.userVote === "a" ? dilemma.optionA : dilemma.optionB;
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/?d=${dilemma.id}`;
+  const shareText = `I said "${choice}" on today's dilemma: ${dilemma.question} What do you think?`;
+
+  function trackShare(method: string) {
+    posthog.capture("share_clicked", { dilemma_id: dilemma.id, method });
+  }
 
   return (
     <div className="animate-fade-in-up flex w-full max-w-lg flex-col gap-5">
@@ -211,47 +214,68 @@ function Results({
         {total.toLocaleString()} votes
       </p>
 
-      <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+      <div className="flex flex-col items-center gap-3 pt-2">
         <Button variant="outline" className="rounded-full" onClick={onNext}>
           Next dilemma →
         </Button>
-        {showSharePrompt && (
-          <>
-            <Button
-              variant="ghost"
-              className="rounded-full"
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-                posthog.capture("share_clicked", {
-                  dilemma_id: dilemma.id,
-                  method: "copy_link",
-                });
-              }}
-            >
-              {copied ? "Copied!" : "Copy link"}
-            </Button>
-            <Button
-              variant="ghost"
-              className="rounded-full"
-              onClick={() => {
-                const text = `${dilemma.question} — vote now!`;
-                const url = window.location.href;
-                window.open(
-                  `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-                  "_blank"
-                );
-                posthog.capture("share_clicked", {
-                  dilemma_id: dilemma.id,
-                  method: "twitter",
-                });
-              }}
-            >
-              Share on X
-            </Button>
-          </>
-        )}
+
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground"
+            onClick={() => {
+              navigator.clipboard.writeText(shareUrl);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+              trackShare("copy_link");
+            }}
+          >
+            {copied ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Copy link
+              </>
+            )}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground"
+            onClick={() => {
+              window.open(
+                `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+                "_blank"
+              );
+              trackShare("twitter");
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            Share on X
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground"
+            onClick={() => {
+              window.open(
+                `https://bsky.app/intent/compose?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`,
+                "_blank"
+              );
+              trackShare("bluesky");
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 600 530" fill="currentColor"><path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1938 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/></svg>
+            Bluesky
+          </Button>
+        </div>
       </div>
     </div>
   );
