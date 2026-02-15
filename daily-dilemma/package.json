@@ -9,10 +9,14 @@
     "lint": "eslint",
     "db:push": "drizzle-kit push",
     "db:seed": "npx tsx lib/db/seed.ts",
-    "generate": "npx tsx scripts/generate-dilemmas.js"
+    "generate": "npx tsx scripts/generate-dilemmas.js",
+    "weekly-scan": "npx tsx scripts/weekly-scan.js",
+    "experiment-monitor": "npx tsx scripts/experiment-monitor.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",
+    "@notionhq/client": "^5.9.0",
+    "@sentry/nextjs": "^10.38.0",
     "@vercel/postgres": "^0.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -20,6 +24,7 @@
     "lucide-react": "^0.564.0",
     "next": "16.1.6",
     "posthog-js": "^1.347.2",
+    "posthog-node": "^5.21.2",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
