@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { eq, sql, and, notInArray } from "drizzle-orm";
+import { eq, sql, notInArray, count } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { dilemmas, votes } from "@/lib/db/schema";
 
@@ -31,8 +31,15 @@ export async function GET() {
     .limit(1)
     .then((rows) => rows[0]);
 
+  // Get total dilemma count
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(dilemmas);
+
+  const answeredCount = answeredIds.length;
+
   if (!unanswered) {
-    return NextResponse.json({ dilemma: null });
+    return NextResponse.json({ dilemma: null, answeredCount, totalCount: total });
   }
 
   // Get vote counts for this dilemma
@@ -57,5 +64,7 @@ export async function GET() {
       votes: { a, b },
       userVote: null,
     },
+    answeredCount,
+    totalCount: total,
   });
 }
