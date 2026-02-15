@@ -95,9 +95,14 @@ export default function Home() {
             </span>
           )}
         </div>
-        <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-          Daily Dilemma
-        </h1>
+        <div className="flex flex-col items-center gap-0.5">
+          <h1 className="text-sm font-extrabold uppercase text-white">
+            Daily Dilemma
+          </h1>
+          <p className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">
+            Every Day, a Dilemma
+          </p>
+        </div>
         <div className="flex w-24 justify-end">
           <button
             onClick={toggleDarkMode}
@@ -239,10 +244,22 @@ function FeedbackForm({ posthog }: { posthog: ReturnType<typeof usePostHog> }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        className="cursor-pointer inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-1.5 text-m font-semibold text-foreground transition-colors hover:bg-accent"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Feedback
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        Send Feedback
       </button>
     );
   }

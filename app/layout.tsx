@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Daily Dilemma",
+  title: "Daily Dilemma — Every Day, a Dilemma",
   description: "Vote on today's dilemma",
 };
 
