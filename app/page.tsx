@@ -45,6 +45,7 @@ export default function Home() {
           setDilemma(data.dilemma);
           setAllAnswered(false);
           dilemmaShownAt.current = Date.now();
+          posthog.capture("question_loaded", { dilemma_id: data.dilemma.id });
         } else {
           setDilemma(null);
           setAllAnswered(true);
@@ -88,7 +89,7 @@ export default function Home() {
       <header className="flex items-center justify-between px-4 py-4 sm:px-6">
         <div className="w-24">
           {answeredCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-sm font-medium">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-sm font-medium whitespace-nowrap">
               <span className="text-base">🔥</span>
               {answeredCount} streak
             </span>
@@ -104,9 +105,41 @@ export default function Home() {
             aria-label="Toggle dark mode"
           >
             {isDark ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2" />
+                <path d="M12 20v2" />
+                <path d="m4.93 4.93 1.41 1.41" />
+                <path d="m17.66 17.66 1.41 1.41" />
+                <path d="M2 12h2" />
+                <path d="M20 12h2" />
+                <path d="m6.34 17.66-1.41 1.41" />
+                <path d="m19.07 4.93-1.41 1.41" />
+              </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
             )}
           </button>
         </div>
@@ -132,7 +165,7 @@ export default function Home() {
               /* Vote Buttons */
               <div className="flex w-full max-w-lg flex-col items-center gap-4 sm:flex-row sm:gap-5">
                 <button
-                  className="animate-fade-in-up-delay group w-full cursor-pointer rounded-2xl bg-option-a px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-a-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl"
+                  className="animate-fade-in-up-delay group w-full cursor-pointer rounded-2xl bg-option-a px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-a-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl whitespace-nowrap overflow-hidden text-ellipsis"
                   disabled={voting}
                   onClick={() => handleVote("a")}
                 >
@@ -144,7 +177,7 @@ export default function Home() {
                 </span>
 
                 <button
-                  className="animate-fade-in-up-delay-2 group w-full cursor-pointer rounded-2xl bg-option-b px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-b-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl"
+                  className="animate-fade-in-up-delay-2 group w-full cursor-pointer rounded-2xl bg-option-b px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-b-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl whitespace-nowrap overflow-hidden text-ellipsis"
                   disabled={voting}
                   onClick={() => handleVote("b")}
                 >
@@ -216,7 +249,9 @@ function FeedbackForm({ posthog }: { posthog: ReturnType<typeof usePostHog> }) {
   return (
     <div className="animate-fade-in-up mx-auto w-full max-w-sm px-4">
       {submitted ? (
-        <p className="text-sm text-muted-foreground">Thanks for the feedback!</p>
+        <p className="text-sm text-muted-foreground">
+          Thanks for the feedback!
+        </p>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <textarea
@@ -316,12 +351,37 @@ function Results({
           >
             {copied ? (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
                 Copied!
               </>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
                 Copy link
               </>
             )}
@@ -334,12 +394,20 @@ function Results({
             onClick={() => {
               window.open(
                 `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
-                "_blank"
+                "_blank",
               );
               trackShare("twitter");
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
             Share on X
           </Button>
 
@@ -350,12 +418,20 @@ function Results({
             onClick={() => {
               window.open(
                 `https://bsky.app/intent/compose?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`,
-                "_blank"
+                "_blank",
               );
               trackShare("bluesky");
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 600 530" fill="currentColor"><path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1938 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 600 530"
+              fill="currentColor"
+            >
+              <path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1938 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z" />
+            </svg>
             Bluesky
           </Button>
         </div>
@@ -384,13 +460,28 @@ function ResultBar({
       <div className="flex items-center justify-between text-sm font-medium">
         <span className="flex items-center gap-1.5">
           {isSelected && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={color === "a" ? "text-option-a" : "text-option-b"}><path d="M20 6 9 17l-5-5"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={color === "a" ? "text-option-a" : "text-option-b"}
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
           )}
           <span className={isWinner ? "font-bold" : "text-muted-foreground"}>
             {label}
           </span>
         </span>
-        <span className={isWinner ? "font-bold text-lg" : "text-muted-foreground"}>
+        <span
+          className={isWinner ? "font-bold text-lg" : "text-muted-foreground"}
+        >
           {percent}%
         </span>
       </div>
@@ -432,7 +523,7 @@ function AllCaughtUp({ answeredCount }: { answeredCount: number }) {
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
       setTimeLeft(
-        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`,
       );
     }
 
@@ -442,13 +533,13 @@ function AllCaughtUp({ answeredCount }: { answeredCount: number }) {
   }, []);
 
   return (
-    <div className="animate-fade-in-up flex flex-col items-center gap-6 text-center">
+    <div className="animate-fade-in-up flex flex-col items-center gap-4 text-center">
       <div className="text-5xl">🏆</div>
       <h2 className="text-3xl font-extrabold sm:text-4xl">
         You&apos;ve conquered them all
       </h2>
-      <p className="max-w-sm text-muted-foreground">
-        {answeredCount} dilemmas answered. New ones drop at midnight.
+      <p className="text-muted-foreground whitespace-nowrap">
+        {answeredCount} dilemmas answered. New ones drop at midnight CET.
       </p>
 
       {/* Countdown */}
