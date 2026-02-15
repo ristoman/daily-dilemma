@@ -13,11 +13,11 @@ async function seed() {
     { question: "Is cereal a soup?", optionA: "Yes", optionB: "No", publishedDate: "2026-02-16" },
     { question: "Does pineapple belong on pizza?", optionA: "Absolutely", optionB: "Never", publishedDate: "2026-02-17" },
     { question: "Is water wet?", optionA: "Yes", optionB: "No", publishedDate: "2026-02-18" },
-    { question: "Would you rather fight 100 duck-sized horses or 1 horse-sized duck?", optionA: "100 small horses", optionB: "1 big duck", publishedDate: "2026-02-19" },
+    { question: "Would you rather fight 100 duck-sized horses or 1 horse-sized duck?", optionA: "Tiny horses", optionB: "Giant duck", publishedDate: "2026-02-19" },
     { question: "Is a taco a sandwich?", optionA: "Yes", optionB: "No", publishedDate: "2026-02-20" },
     { question: "Should toilet paper hang over or under?", optionA: "Over", optionB: "Under", publishedDate: "2026-02-21" },
     { question: "Is it acceptable to recline your seat on a plane?", optionA: "Yes", optionB: "No", publishedDate: "2026-02-22" },
-    { question: "GIF: hard G or soft G?", optionA: "Hard G", optionB: "Soft G (jif)", publishedDate: "2026-02-23" },
+    { question: "GIF: hard G or soft G?", optionA: "Hard G", optionB: "Soft G", publishedDate: "2026-02-23" },
     { question: "Would you rather know how you die or when you die?", optionA: "How", optionB: "When", publishedDate: "2026-02-24" },
   ];
 
