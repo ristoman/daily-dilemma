@@ -11,7 +11,8 @@
     "db:seed": "npx tsx lib/db/seed.ts",
     "generate": "npx tsx scripts/generate-dilemmas.js",
     "weekly-scan": "npx tsx scripts/weekly-scan.js",
-    "experiment-monitor": "npx tsx scripts/experiment-monitor.js"
+    "experiment-monitor": "npx tsx scripts/experiment-monitor.js",
+    "watchdog": "npx tsx scripts/watchdog.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",
