@@ -18,17 +18,10 @@ const ERROR_THRESHOLD = parseInt(process.env.ERROR_THRESHOLD || "50", 10);
 // --- Sentry ---
 
 async function getErrorCount() {
-  const now = new Date();
-  const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-
-  const params = new URLSearchParams({
-    statsPeriod: "1h",
-    query: "is:unresolved",
-    sort: "freq",
-  });
+  const since = Math.floor((Date.now() - 60 * 60 * 1000) / 1000);
 
   const res = await fetch(
-    `https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/issues/?${params}`,
+    `https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/stats/?stat=received&resolution=1h&since=${since}`,
     {
       headers: { Authorization: `Bearer ${SENTRY_AUTH_TOKEN}` },
     }
@@ -39,15 +32,15 @@ async function getErrorCount() {
     throw new Error(`Sentry API failed (${res.status}): ${text}`);
   }
 
-  const issues = await res.json();
+  const buckets = await res.json();
 
-  // Sum up event counts from the last hour across all issues
+  // Each bucket is [timestamp, count] — sum all counts in the window
   let totalEvents = 0;
-  for (const issue of issues) {
-    totalEvents += parseInt(issue.count || "0", 10);
+  for (const [, count] of buckets) {
+    totalEvents += count;
   }
 
-  return { totalEvents, issueCount: issues.length };
+  return { totalEvents, issueCount: buckets.length };
 }
 
 // --- PostHog ---
