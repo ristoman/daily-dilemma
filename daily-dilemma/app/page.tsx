@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePostHog, useFeatureFlagEnabled } from "posthog-js/react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
@@ -14,10 +15,14 @@ type Dilemma = {
 };
 
 export default function Home() {
+  const posthog = usePostHog();
+  const showSharePrompt = useFeatureFlagEnabled("show-share-prompt");
   const [dilemma, setDilemma] = useState<Dilemma | null>(null);
   const [allAnswered, setAllAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const dilemmaShownAt = useRef<number>(0);
 
   const fetchDilemma = useCallback(() => {
     setLoading(true);
@@ -27,13 +32,14 @@ export default function Home() {
         if (data.dilemma) {
           setDilemma(data.dilemma);
           setAllAnswered(false);
+          dilemmaShownAt.current = Date.now();
         } else {
           setDilemma(null);
           setAllAnswered(true);
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [posthog]);
 
   useEffect(() => {
     fetchDilemma();
@@ -51,7 +57,14 @@ export default function Home() {
 
     if (res.ok) {
       const data = await res.json();
+      const timeToVote = (Date.now() - dilemmaShownAt.current) / 1000;
       setDilemma({ ...dilemma, userVote: choice, votes: data.votes });
+      posthog.capture("vote_cast", {
+        dilemma_id: dilemma.id,
+        choice,
+        time_to_vote_seconds: Math.round(timeToVote * 10) / 10,
+      });
+      posthog.capture("results_viewed", { dilemma_id: dilemma.id });
     }
     setVoting(false);
   }
@@ -142,13 +155,49 @@ export default function Home() {
             <p className="text-center text-sm text-muted-foreground">
               {total.toLocaleString()} votes
             </p>
-            <Button
-              variant="outline"
-              className="mx-auto mt-2"
-              onClick={fetchDilemma}
-            >
-              Next dilemma
-            </Button>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <Button
+                variant="outline"
+                onClick={fetchDilemma}
+              >
+                Next dilemma
+              </Button>
+              {showSharePrompt && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                      posthog.capture("share_clicked", {
+                        dilemma_id: dilemma.id,
+                        method: "copy_link",
+                      });
+                    }}
+                  >
+                    {copied ? "Copied!" : "Copy link"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const text = `${dilemma.question} — vote now!`;
+                      const url = window.location.href;
+                      window.open(
+                        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+                        "_blank"
+                      );
+                      posthog.capture("share_clicked", {
+                        dilemma_id: dilemma.id,
+                        method: "twitter",
+                      });
+                    }}
+                  >
+                    Share on X
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </main>
