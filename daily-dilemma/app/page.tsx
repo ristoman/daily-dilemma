@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePostHog, useFeatureFlagEnabled } from "posthog-js/react";
+import { usePostHog, useFeatureFlagVariantKey } from "posthog-js/react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
@@ -16,7 +16,8 @@ type Dilemma = {
 
 export default function Home() {
   const posthog = usePostHog();
-  const showSharePrompt = useFeatureFlagEnabled("show-share-prompt");
+  const shareVariant = useFeatureFlagVariantKey("share-prompt-impact");
+  const showSharePrompt = shareVariant === "test";
   const [dilemma, setDilemma] = useState<Dilemma | null>(null);
   const [allAnswered, setAllAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
