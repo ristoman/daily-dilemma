@@ -22,5 +22,45 @@ export async function POST(req: Request) {
     sessionId,
   });
 
+  // Mirror to Notion (fire-and-forget, don't fail the request if this errors)
+  const notionToken = process.env.NOTION_API_KEY;
+  const notionPageId = process.env.NOTION_FEEDBACK_PAGE_ID;
+  if (notionToken && notionPageId) {
+    const timestamp = new Date().toISOString();
+    fetch(`https://api.notion.com/v1/blocks/${notionPageId}/children`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${notionToken}`,
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28",
+      },
+      body: JSON.stringify({
+        children: [
+          {
+            object: "block",
+            type: "quote",
+            quote: {
+              rich_text: [{ type: "text", text: { content: message.trim() } }],
+            },
+          },
+          {
+            object: "block",
+            type: "paragraph",
+            paragraph: {
+              rich_text: [
+                {
+                  type: "text",
+                  text: { content: timestamp },
+                  annotations: { color: "gray" },
+                },
+              ],
+            },
+          },
+          { object: "block", type: "divider", divider: {} },
+        ],
+      }),
+    }).catch(() => {});
+  }
+
   return NextResponse.json({ ok: true });
 }

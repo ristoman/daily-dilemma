@@ -239,8 +239,9 @@ function FeedbackForm({ posthog }: { posthog: ReturnType<typeof usePostHog> }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="cursor-pointer text-xs text-muted-foreground transition-colors hover:text-foreground"
+        className="cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Feedback
       </button>
     );
