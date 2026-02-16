@@ -3,6 +3,7 @@ config({ path: ".env.local" });
 
 import Anthropic from "@anthropic-ai/sdk";
 import { Client } from "@notionhq/client";
+import { readContext, writeContext } from "../lib/context.js";
 
 const POSTHOG_HOST = "https://eu.posthog.com";
 const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;
@@ -229,6 +230,41 @@ async function weeklyScan() {
   console.log("Writing to Notion...");
   await writeToNotion(hypotheses, summary, weekRange);
   console.log(`Created ${hypotheses.length} pages in Notion database.`);
+
+  // Update shared context
+  const ctx = readContext();
+
+  // Parse metrics from summary text
+  const parseMetric = (label) => {
+    const match = summary.match(new RegExp(`${label}:\\s*([\\d.]+)`));
+    return match ? parseFloat(match[1]) : 0;
+  };
+
+  ctx.weeklyMetrics.push({
+    weekOf: weekRange.split(" → ")[0],
+    sessions: parseMetric("Unique sessions"),
+    votes: parseMetric("Votes cast"),
+    completionRate: parseMetric("Vote completion rate"),
+    returnRate: parseMetric("Return rate"),
+    shares: parseMetric("Share clicks"),
+  });
+
+  for (const h of hypotheses) {
+    ctx.hypotheses.push({
+      id: `hyp-${Date.now()}-${h.rank}`,
+      createdAt: new Date().toISOString().split("T")[0],
+      source: "weekly-scan",
+      statement: h.hypothesis,
+      rationale: h.rationale,
+      status: "proposed",
+      experimentId: null,
+      result: null,
+      metrics: {},
+    });
+  }
+
+  writeContext(ctx);
+  console.log("Updated shared context.");
 
   process.exit(0);
 }

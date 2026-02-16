@@ -4,8 +4,9 @@ config({ path: ".env.local" });
 import Anthropic from "@anthropic-ai/sdk";
 import { sql } from "@vercel/postgres";
 import { drizzle } from "drizzle-orm/vercel-postgres";
-import { desc } from "drizzle-orm";
+import { desc, count } from "drizzle-orm";
 import { dilemmas } from "../lib/db/schema.js";
+import { readContext, writeContext } from "../lib/context.js";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -76,6 +77,20 @@ Example format:
   values.forEach((v) => {
     console.log(`  ${v.publishedDate}: ${v.question} (${v.optionA} / ${v.optionB})`);
   });
+
+  // Update shared context
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(dilemmas);
+
+  const ctx = readContext();
+  ctx.dilemmaQueue = {
+    lastGenerated: new Date().toISOString().split("T")[0],
+    scheduledThrough: values[values.length - 1].publishedDate,
+    totalCount: total,
+  };
+  writeContext(ctx);
+  console.log("Updated shared context.");
 
   process.exit(0);
 }

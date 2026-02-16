@@ -2,6 +2,7 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import { Client } from "@notionhq/client";
+import { readContext, writeContext } from "../lib/context.js";
 
 const POSTHOG_HOST = "https://eu.posthog.com";
 const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;
@@ -371,6 +372,41 @@ async function experimentMonitor() {
     }
     console.log("Done.");
   }
+
+  // Update shared context with experiment statuses
+  const ctx = readContext();
+
+  for (const a of analyses) {
+    const existing = ctx.experiments.find((e) => e.flagKey === a.flagKey);
+    const entry = {
+      id: `exp-${a.id}`,
+      hypothesisId: null,
+      flagKey: a.flagKey,
+      name: a.name,
+      startedAt: a.startDate,
+      status: a.recommendation.action === "ramp" ? "concluded"
+        : a.recommendation.action === "rollback" ? "rolled-back"
+        : "running",
+      recommendation: a.recommendation.action,
+      endedAt: a.recommendation.action !== "wait" ? new Date().toISOString().split("T")[0] : null,
+      result: {
+        winner: a.recommendation.action === "ramp" ? "test" : a.recommendation.action === "rollback" ? "control" : null,
+        pValue: a.metrics[0]?.pValue ?? null,
+        sampleSize: a.metrics[0]
+          ? a.metrics[0].baselineSamples + a.metrics[0].variants.reduce((s, v) => s + v.samples, 0)
+          : null,
+      },
+    };
+
+    if (existing) {
+      Object.assign(existing, entry);
+    } else {
+      ctx.experiments.push(entry);
+    }
+  }
+
+  writeContext(ctx);
+  console.log("Updated shared context.");
 
   process.exit(0);
 }

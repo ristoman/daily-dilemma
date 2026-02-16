@@ -13,6 +13,8 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ALERT_EMAIL_TO = process.env.ALERT_EMAIL_TO;
 const ALERT_EMAIL_FROM = process.env.ALERT_EMAIL_FROM || "watchdog@resend.dev";
 
+import { readContext, writeContext } from "../lib/context.js";
+
 const ERROR_THRESHOLD = parseInt(process.env.ERROR_THRESHOLD || "50", 10);
 
 // --- Sentry ---
@@ -164,6 +166,29 @@ async function watchdog() {
 
   console.log("\nSending alert email...");
   await sendAlertEmail(totalEvents, issueCount, disabledFlags);
+
+  // Record incident in shared context
+  const ctx = readContext();
+  const disabledKeys = disabledFlags.map((f) => f.key);
+
+  ctx.incidents.push({
+    timestamp: new Date().toISOString(),
+    source: "watchdog",
+    errorCount: totalEvents,
+    flagsDisabled: disabledKeys,
+    resolved: false,
+  });
+
+  // Mark affected experiments as killed
+  for (const exp of ctx.experiments) {
+    if (disabledKeys.includes(exp.flagKey) && exp.status === "running") {
+      exp.status = "killed-by-watchdog";
+      exp.endedAt = new Date().toISOString().split("T")[0];
+    }
+  }
+
+  writeContext(ctx);
+  console.log("Updated shared context.");
 
   console.log("\nWatchdog complete.");
   process.exit(disabledFlags.length > 0 ? 0 : 1);
