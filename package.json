@@ -12,7 +12,8 @@
     "generate": "npx tsx scripts/generate-dilemmas.js",
     "weekly-scan": "npx tsx scripts/weekly-scan.js",
     "experiment-monitor": "npx tsx scripts/experiment-monitor.js",
-    "watchdog": "npx tsx scripts/watchdog.js"
+    "watchdog": "npx tsx scripts/watchdog.js",
+    "weekly-changelog": "npx tsx scripts/weekly-changelog.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",

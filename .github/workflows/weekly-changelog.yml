@@ -1,0 +1,32 @@
+name: Weekly Changelog
+
+on:
+  schedule:
+    - cron: '0 4 * * 1' # Every Monday at 5am CET (UTC+1)
+  workflow_dispatch:
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history so git log --since works correctly
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run weekly changelog
+        run: npx tsx scripts/weekly-changelog.js
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_CHANGELOG_PAGE_ID: ${{ secrets.NOTION_CHANGELOG_PAGE_ID }}
