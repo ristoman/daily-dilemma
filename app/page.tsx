@@ -169,9 +169,9 @@ export default function Home() {
 
             {!dilemma.userVote ? (
               /* Vote Buttons */
-              <div className="flex w-full max-w-lg flex-col items-center gap-4 sm:flex-row sm:gap-5">
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
                 <button
-                  className="animate-fade-in-up-delay group w-full cursor-pointer rounded-2xl bg-option-a px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-a-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl whitespace-nowrap overflow-hidden text-ellipsis"
+                  className="animate-fade-in-up-delay group min-w-48 cursor-pointer whitespace-nowrap rounded-2xl bg-option-a px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-a-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl"
                   disabled={voting}
                   onClick={() => handleVote("a")}
                 >
@@ -183,7 +183,7 @@ export default function Home() {
                 </span>
 
                 <button
-                  className="animate-fade-in-up-delay-2 group w-full cursor-pointer rounded-2xl bg-option-b px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-b-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl whitespace-nowrap overflow-hidden text-ellipsis"
+                  className="animate-fade-in-up-delay-2 group min-w-48 cursor-pointer whitespace-nowrap rounded-2xl bg-option-b px-6 py-6 text-xl font-bold text-white shadow-lg transition-all hover:scale-[1.03] hover:bg-option-b-hover hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-7 sm:text-2xl"
                   disabled={voting}
                   onClick={() => handleVote("b")}
                 >
