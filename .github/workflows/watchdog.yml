@@ -2,7 +2,7 @@ name: Error Watchdog
 
 on:
   schedule:
-    - cron: '*/60 * * * *' # Every hour
+    - cron: '0 * * * *' # Every hour
   workflow_dispatch: # Allow manual triggers
 
 jobs:
