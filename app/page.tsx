@@ -564,7 +564,7 @@ function AllCaughtUp({ answeredCount }: { answeredCount: number }) {
       {/* Countdown */}
       <div className="flex flex-col items-center gap-2 pt-4">
         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          Next batch in
+          Next dilemma in
         </p>
         <div className="font-mono text-5xl font-bold tracking-wider sm:text-6xl">
           {timeLeft}
