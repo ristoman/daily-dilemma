@@ -9,6 +9,7 @@ type Dilemma = {
   question: string;
   optionA: string;
   optionB: string;
+  publishedDate: string;
   votes: { a: number; b: number };
   userVote: "a" | "b" | null;
 };
@@ -352,7 +353,7 @@ function Results({
 
       <div className="flex flex-col items-center gap-3 pt-2">
         <Button variant="outline" className="rounded-full" onClick={onNext}>
-          Next dilemma →
+          ← Previous dilemma
         </Button>
 
         <div className="flex flex-wrap items-center justify-center gap-2">

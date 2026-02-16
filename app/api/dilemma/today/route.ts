@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { eq, sql, notInArray, count, lte, and } from "drizzle-orm";
+import { eq, sql, notInArray, count, lte, and, desc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { dilemmas, votes } from "@/lib/db/schema";
 
@@ -20,7 +20,7 @@ export async function GET() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Get a random unanswered dilemma that has been published
+  // Get the most recent unanswered dilemma that has been published
   const unanswered = await db
     .select()
     .from(dilemmas)
@@ -30,7 +30,7 @@ export async function GET() {
         answeredIds.length > 0 ? notInArray(dilemmas.id, answeredIds) : undefined
       )
     )
-    .orderBy(sql`random()`)
+    .orderBy(desc(dilemmas.publishedDate))
     .limit(1)
     .then((rows) => rows[0]);
 
@@ -65,6 +65,7 @@ export async function GET() {
       question: unanswered.question,
       optionA: unanswered.optionA,
       optionB: unanswered.optionB,
+      publishedDate: unanswered.publishedDate,
       votes: { a, b },
       userVote: null,
     },
