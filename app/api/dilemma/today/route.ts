@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { eq, sql, notInArray, count } from "drizzle-orm";
+import { eq, sql, notInArray, count, lte, and } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { dilemmas, votes } from "@/lib/db/schema";
 
@@ -18,23 +18,27 @@ export async function GET() {
     answeredIds = answered.map((r) => r.dilemmaId);
   }
 
-  // Get a random unanswered dilemma
+  const today = new Date().toISOString().split("T")[0];
+
+  // Get a random unanswered dilemma that has been published
   const unanswered = await db
     .select()
     .from(dilemmas)
     .where(
-      answeredIds.length > 0
-        ? notInArray(dilemmas.id, answeredIds)
-        : undefined
+      and(
+        lte(dilemmas.publishedDate, today),
+        answeredIds.length > 0 ? notInArray(dilemmas.id, answeredIds) : undefined
+      )
     )
     .orderBy(sql`random()`)
     .limit(1)
     .then((rows) => rows[0]);
 
-  // Get total dilemma count
+  // Get total published dilemma count
   const [{ total }] = await db
     .select({ total: count() })
-    .from(dilemmas);
+    .from(dilemmas)
+    .where(lte(dilemmas.publishedDate, today));
 
   const answeredCount = answeredIds.length;
 
