@@ -552,7 +552,7 @@ function AllCaughtUp({ answeredCount }: { answeredCount: number }) {
   }, []);
 
   return (
-    <div className="animate-fade-in-up flex flex-col items-center gap-4 text-center">
+    <div className="animate-fade-in-up flex max-w-full flex-col items-center gap-4 px-4 text-center">
       <div className="text-5xl">🏆</div>
       <h2 className="text-3xl font-extrabold sm:text-4xl">
         You&apos;ve conquered them all
