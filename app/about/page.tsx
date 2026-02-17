@@ -84,7 +84,7 @@ export default async function AboutPage() {
               <h3 className="font-semibold text-foreground">User Feedback</h3>
               <p>
                 Numbers only tell part of the story. Real user feedback
-                submitted through the app is reviewed alongside the data, so
+                submitted through the app is reviewed alongside the data so
                 human voices shape what gets prioritized, not just metrics.
               </p>
             </div>
@@ -130,17 +130,19 @@ export default async function AboutPage() {
               {Object.entries(goals).map(([key, g]: [string, any]) => (
                 <div
                   key={key}
-                  className="flex items-baseline justify-between rounded-lg border border-border px-3 py-2"
+                  className="grid grid-cols-2 items-center gap-2 rounded-lg border border-border px-3 py-2 sm:flex sm:justify-between"
                 >
                   <span className="font-medium text-foreground">
                     {formatGoalName(key)}
                   </span>
-                  <span>
+                  <span className="text-right sm:text-left">
                     {g.target}
                     {g.unit.startsWith("%") ? "" : " "}
                     {g.unit}
                     {g.deadline && (
-                      <span className="ml-2 text-xs">by {g.deadline}</span>
+                      <span className="block text-xs sm:ml-2 sm:inline">
+                        by {g.deadline}
+                      </span>
                     )}
                   </span>
                 </div>
