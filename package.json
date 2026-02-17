@@ -10,6 +10,7 @@
     "db:push": "drizzle-kit push",
     "db:seed": "npx tsx lib/db/seed.ts",
     "generate": "npx tsx scripts/generate-dilemmas.js",
+    "daily-scan": "npx tsx scripts/daily-scan.js",
     "weekly-scan": "npx tsx scripts/weekly-scan.js",
     "experiment-monitor": "npx tsx scripts/experiment-monitor.js",
     "watchdog": "npx tsx scripts/watchdog.js",

@@ -20,9 +20,10 @@ These run on GitHub Actions schedules and can be run locally with `npx tsx`:
 
 | Script | Schedule | Purpose |
 |---|---|---|
+| `daily-scan.js` | Daily 2am UTC | Health check + experiment pipeline coordinator |
 | `generate-dilemmas.js` | Weekly | Claude generates 7 dilemmas, inserts into DB |
 | `weekly-scan.js` | Weekly | Pulls PostHog analytics, Claude produces hypotheses |
-| `experiment-monitor.js` | Daily | Checks running A/B tests for statistical significance |
+| `experiment-monitor.js` | Daily 9am UTC | Checks running A/B tests for statistical significance |
 | `watchdog.js` | Hourly | Monitors Sentry error rates, kills experiments if needed |
 | `weekly-changelog.js` | Weekly | Claude summarizes git commits into a Notion changelog |
 
@@ -91,6 +92,7 @@ import { readContext, writeContext } from "@/lib/context.js";
 - **experiments** — A/B test records linked to hypotheses
 - **incidents** — watchdog-triggered incidents
 - **weeklyMetrics** — historical snapshots from weekly-scan
+- **dailyPulse** — daily metric snapshots from daily-scan (capped at 90 days)
 
 When modifying context.json programmatically, always use `writeContext()` — it auto-sets `lastUpdated`. The about page reads this file at render time to display live experiment status.
 
