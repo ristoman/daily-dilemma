@@ -5,6 +5,9 @@ on:
     - cron: '0 2 * * *' # Every day at 2:00 AM UTC
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   scan:
     runs-on: ubuntu-latest
