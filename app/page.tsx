@@ -207,12 +207,21 @@ export default function Home() {
       {/* Footer */}
       <footer className="flex flex-col items-center gap-2 pb-4 pt-2">
         <FeedbackForm posthog={posthog} />
-        <a
-          href="/privacy"
-          className="text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground"
-        >
-          Privacy Policy
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/about"
+            className="text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+          >
+            About
+          </a>
+          <span className="text-xs text-muted-foreground/30">·</span>
+          <a
+            href="/privacy"
+            className="text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+          >
+            Privacy
+          </a>
+        </div>
       </footer>
     </div>
   );
