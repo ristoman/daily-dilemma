@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { dilemmas, votes } from "@/lib/db/schema";
 import { count, sql, lte } from "drizzle-orm";
-import { readContext } from "@/lib/context.js";
+import context from "@/data/context.json";
 
 export const metadata: Metadata = {
   title: "About — Daily Dilemma",
@@ -26,10 +26,9 @@ export default async function AboutPage() {
     })
     .from(votes);
 
-  const ctx = readContext();
-  const goals = ctx.goals || {};
-  const hypotheses = ctx.hypotheses || [];
-  const experiments = ctx.experiments || [];
+  const goals = (context as any).goals || {};
+  const hypotheses = (context as any).hypotheses || [];
+  const experiments = (context as any).experiments || [];
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
