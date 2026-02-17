@@ -158,10 +158,7 @@ export default async function AboutPage() {
               Recent hypotheses
             </h2>
             <div className="flex flex-col gap-3">
-              {hypotheses
-                .slice(-5)
-                .reverse()
-                .map((h: any) => (
+              {hypotheses.slice(0, 5).map((h: any) => (
                   <div
                     key={h.id}
                     className="rounded-lg border border-border px-3 py-2"
