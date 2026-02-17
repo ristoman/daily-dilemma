@@ -120,6 +120,17 @@ async function fetchAnalytics() {
 // --- Claude analysis ---
 
 async function analyzeWithClaude(summary) {
+  const ctx = readContext();
+  const goals = ctx.goals || {};
+  const goalsBlock = Object.entries(goals)
+    .map(([key, g]) => `- ${key}: target ${g.target}${g.unit} by ${g.deadline || "ongoing"} (metric: ${g.metric})`)
+    .join("\n");
+
+  const prevMetrics = ctx.weeklyMetrics.slice(-4);
+  const trendsBlock = prevMetrics.length > 0
+    ? `\n\nPrevious weeks for trend comparison:\n${prevMetrics.map((m) => `  ${m.weekOf}: ${m.sessions} sessions, ${m.votes} votes, ${m.completionRate}% completion, ${m.returnRate}% return, ${m.shares} shares`).join("\n")}`
+    : "";
+
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-5-20250929",
     max_tokens: 1024,
@@ -128,20 +139,25 @@ async function analyzeWithClaude(summary) {
         role: "user",
         content: `You are a product analytics expert. Analyze the following weekly analytics data for a "Daily Dilemma" polling app where users vote on fun dilemma questions.
 
-${summary}
+${summary}${trendsBlock}
 
-Based on this data, identify the top 3 user experience issues or opportunities. For each one:
+The team has these SMART goals:
+${goalsBlock}
+
+Based on this data and these goals, identify the top 3 user experience issues or opportunities. Prioritize hypotheses that move the needle on whichever goal is furthest from its target. For each one:
 1. Format it as a hypothesis: "We believe [change] will [outcome] measurable by [metric]"
-2. Rank them by estimated impact (1 = highest impact)
-3. Include a brief rationale
+2. Rank them by estimated impact on the goals (1 = highest impact)
+3. Include a brief rationale referencing the relevant goal
+4. Name the goal it targets
 
 Return ONLY a JSON array with no other text. Each object should have:
 - "rank": number (1-3)
 - "hypothesis": the formatted hypothesis string
 - "rationale": 1-2 sentence explanation
+- "targetGoal": the goal key this addresses (e.g. "voteCompletionRate")
 
 Example format:
-[{"rank": 1, "hypothesis": "We believe simplifying the vote UI will increase vote completion rate measurable by vote_cast/pageview ratio", "rationale": "Low completion rate suggests friction in the voting flow."}]`,
+[{"rank": 1, "hypothesis": "We believe simplifying the vote UI will increase vote completion rate measurable by vote_cast/pageview ratio", "rationale": "Completion rate is at 35%, well below the 60% target. Reducing friction in the voting flow is the highest-leverage change.", "targetGoal": "voteCompletionRate"}]`,
       },
     ],
   });

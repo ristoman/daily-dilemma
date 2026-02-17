@@ -1,5 +1,37 @@
 {
   "lastUpdated": null,
+  "goals": {
+    "dailyActiveVoters": {
+      "target": 50,
+      "unit": "unique sessions/day",
+      "deadline": "2026-04-13",
+      "metric": "vote_cast unique $session_id per day"
+    },
+    "voteCompletionRate": {
+      "target": 60,
+      "unit": "%",
+      "deadline": "2026-03-16",
+      "metric": "vote_cast / $pageview ratio"
+    },
+    "returnRate": {
+      "target": 25,
+      "unit": "%",
+      "deadline": "2026-03-30",
+      "metric": "sessions with >1 pageview / total sessions"
+    },
+    "shareConversion": {
+      "target": 5,
+      "unit": "%",
+      "deadline": "2026-03-30",
+      "metric": "share_clicked / vote_cast ratio"
+    },
+    "experimentVelocity": {
+      "target": 2,
+      "unit": "concluded experiments/month",
+      "deadline": null,
+      "metric": "experiments with status concluded or rolled-back per month"
+    }
+  },
   "hypotheses": [],
   "experiments": [],
   "incidents": [],
