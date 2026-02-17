@@ -548,9 +548,13 @@ function AllCaughtUp({ answeredCount }: { answeredCount: number }) {
   useEffect(() => {
     function update() {
       const now = new Date();
-      const midnight = new Date(now);
-      midnight.setHours(24, 0, 0, 0);
-      const diff = midnight.getTime() - now.getTime();
+      // Compute the current time in Europe/Berlin, then find next midnight in that zone
+      const berlinNow = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
+      const utcOffsetMs = berlinNow.getTime() - now.getTime();
+      const cetNow = new Date(now.getTime() + utcOffsetMs);
+      const midnightCet = new Date(cetNow);
+      midnightCet.setHours(24, 0, 0, 0);
+      const diff = midnightCet.getTime() - cetNow.getTime();
 
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
