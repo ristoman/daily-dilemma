@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-17T17:29:53.396Z",
+  "lastUpdated": "2026-02-17T18:40:31.251Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -81,7 +81,19 @@
   ],
   "incidents": [],
   "weeklyMetrics": [],
-  "dailyPulse": [],
+  "dailyPulse": [
+    {
+      "date": "2026-02-17",
+      "pageviews": 139,
+      "votes": 207,
+      "sessions": 64,
+      "uniqueVoters": 44,
+      "voteCompletionRate": 148.9,
+      "returnRate": 29.7,
+      "shareConversion": 0,
+      "anomalies": null
+    }
+  ],
   "dilemmaQueue": {
     "lastGenerated": null,
     "scheduledThrough": null,
