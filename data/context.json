@@ -55,7 +55,14 @@
       "targetGoal": "voteCompletionRate",
       "experimentId": null,
       "result": null,
-      "metrics": {}
+      "metrics": {},
+      "designNotes": {
+        "skipBehavior": "One-tap skip, do not resurface the skipped dilemma for that session",
+        "afterSkip": "Show results view (vote percentages, total votes) without highlighting a choice",
+        "publicVisibility": "Do not show skip count publicly — track internally for content quality signals",
+        "analytics": "Track dilemma_skipped event in PostHog with dilemma ID",
+        "feedsInto": "Skip data feeds into weekly-scan and dilemma generation (hyp-manual-004)"
+      }
     },
     {
       "id": "hyp-manual-003",
