@@ -122,8 +122,20 @@ async function fetchAnalytics() {
 async function analyzeWithClaude(summary) {
   const ctx = readContext();
   const goals = ctx.goals || {};
+  const today = new Date();
   const goalsBlock = Object.entries(goals)
-    .map(([key, g]) => `- ${key}: target ${g.target}${g.unit} by ${g.deadline || "ongoing"} (metric: ${g.metric})`)
+    .map(([key, g]) => {
+      let deadlineInfo = "ongoing";
+      if (g.deadline) {
+        const daysLeft = Math.ceil((new Date(g.deadline) - today) / (1000 * 60 * 60 * 24));
+        deadlineInfo = daysLeft <= 0
+          ? `OVERDUE (was ${g.deadline})`
+          : daysLeft <= 7
+            ? `⚠️ ${daysLeft} days remaining (${g.deadline})`
+            : `${daysLeft} days remaining (${g.deadline})`;
+      }
+      return `- ${key}: target ${g.target}${g.unit} — ${deadlineInfo} (metric: ${g.metric})`;
+    })
     .join("\n");
 
   const prevMetrics = ctx.weeklyMetrics.slice(-4);
@@ -243,12 +255,40 @@ async function weeklyScan() {
   });
   console.log();
 
+  // Deadline awareness callout
+  const ctx = readContext();
+  const goals = ctx.goals || {};
+  const currentMetrics = {
+    voteCompletionRate: parseFloat(summary.match(/Vote completion rate:\s*([\d.]+)/)?.[1] || "0"),
+    returnRate: parseFloat(summary.match(/Return rate:\s*([\d.]+)/)?.[1] || "0"),
+    shareConversion: (() => {
+      const votes = parseFloat(summary.match(/Votes cast:\s*([\d.]+)/)?.[1] || "0");
+      const shares = parseFloat(summary.match(/Share clicks:\s*([\d.]+)/)?.[1] || "0");
+      return votes > 0 ? ((shares / votes) * 100) : 0;
+    })(),
+  };
+  const today = new Date();
+  let hasUrgent = false;
+  for (const [key, g] of Object.entries(goals)) {
+    if (!g.deadline) continue;
+    const daysLeft = Math.ceil((new Date(g.deadline) - today) / (1000 * 60 * 60 * 24));
+    const current = currentMetrics[key];
+    if (daysLeft <= 0) {
+      console.log(`  ⚠️  OVERDUE: ${key} — deadline was ${g.deadline}, target: ${g.target}${g.unit}`);
+      hasUrgent = true;
+    } else if (daysLeft <= 14 && current != null) {
+      const pct = ((current / g.target) * 100).toFixed(0);
+      console.log(`  ⚠️  ${key} — ${daysLeft} days left, currently at ${current}${g.unit} (${pct}% of ${g.target}${g.unit} target)`);
+      hasUrgent = true;
+    }
+  }
+  if (hasUrgent) console.log();
+
   console.log("Writing to Notion...");
   await writeToNotion(hypotheses, summary, weekRange);
   console.log(`Created ${hypotheses.length} pages in Notion database.`);
 
-  // Update shared context
-  const ctx = readContext();
+  // Update shared context (ctx already loaded above for deadline check)
 
   // Parse metrics from summary text
   const parseMetric = (label) => {
