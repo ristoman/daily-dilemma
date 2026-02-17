@@ -32,7 +32,58 @@
       "metric": "experiments with status concluded or rolled-back per month"
     }
   },
-  "hypotheses": [],
+  "hypotheses": [
+    {
+      "id": "hyp-manual-001",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe adding a like button to dilemmas will increase engagement, measurable by likes per vote and return rate",
+      "rationale": "A lightweight like action after voting gives users a way to signal content quality. Tracking like rate per dilemma provides a content quality metric and increases interaction depth per session.",
+      "status": "proposed",
+      "targetGoal": "returnRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {}
+    },
+    {
+      "id": "hyp-manual-002",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe adding a skip button to dilemmas will increase vote completion rate, measurable by vote_cast / pageview ratio",
+      "rationale": "Users who don't connect with a dilemma currently bounce. A skip button keeps them in the flow and moves them to a dilemma they care about, converting would-be bounces into votes.",
+      "status": "proposed",
+      "targetGoal": "voteCompletionRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {}
+    },
+    {
+      "id": "hyp-manual-003",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe a Top 10 most liked dilemmas page will increase return rate, measurable by sessions with >1 pageview",
+      "rationale": "Once enough likes accumulate, a curated 'best of' page gives returning users a reason to come back beyond the daily question. Requires hyp-manual-001 (likes) to be shipped first.",
+      "status": "proposed",
+      "targetGoal": "returnRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {},
+      "dependsOn": "hyp-manual-001"
+    },
+    {
+      "id": "hyp-manual-004",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe feeding like/skip signals into dilemma generation will improve content quality over time, measurable by like ratio and vote completion rate trending upward",
+      "rationale": "Like and skip data creates a feedback loop for content generation. Rather than copying popular topics, Claude should identify underlying themes that resonate (e.g. 'nostalgia-driven choices', 'false dichotomies in everyday habits') and generate dilemmas that tap into those patterns while maintaining topical diversity. Requires hyp-manual-001 and hyp-manual-002 to be shipped first.",
+      "status": "proposed",
+      "targetGoal": "voteCompletionRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {},
+      "dependsOn": ["hyp-manual-001", "hyp-manual-002"]
+    }
+  ],
   "experiments": [],
   "incidents": [],
   "weeklyMetrics": [],
