@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePostHog } from "posthog-js/react";
+import { usePostHog, useFeatureFlagEnabled } from "posthog-js/react";
 import { Button } from "@/components/ui/button";
 
 type Dilemma = {
@@ -12,6 +12,8 @@ type Dilemma = {
   publishedDate: string;
   votes: { a: number; b: number };
   userVote: "a" | "b" | null;
+  likes: number;
+  userLiked: boolean;
 };
 
 export default function Home() {
@@ -337,6 +339,31 @@ function Results({
   const aPercent = total > 0 ? Math.round((dilemma.votes.a / total) * 100) : 50;
   const bPercent = total > 0 ? 100 - aPercent : 50;
 
+  const flagEnabled = useFeatureFlagEnabled("like-button");
+  const isDev = typeof window !== "undefined" && window.location.hostname === "localhost";
+  const showLikeButton = isDev || flagEnabled === true;
+
+  const [liked, setLiked] = useState(dilemma.userLiked);
+  const [likeCount, setLikeCount] = useState(dilemma.likes);
+  const [liking, setLiking] = useState(false);
+
+  async function handleLike() {
+    if (liked || liking) return;
+    setLiking(true);
+    const res = await fetch("/api/like", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dilemma_id: dilemma.id }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setLiked(true);
+      setLikeCount(data.likes);
+      posthog.capture("dilemma_liked", { dilemma_id: dilemma.id });
+    }
+    setLiking(false);
+  }
+
   const choice = dilemma.userVote === "a" ? dilemma.optionA : dilemma.optionB;
   const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/?d=${dilemma.id}`;
   const shareText = `I said "${choice}" on today's dilemma: ${dilemma.question} What do you think?`;
@@ -348,18 +375,9 @@ function Results({
   return (
     <div className="animate-fade-in-up flex w-full max-w-lg flex-col gap-5">
       <ResultBar
-        label={dilemma.optionA}
-        percent={aPercent}
-        isWinner={aPercent >= bPercent}
-        isSelected={dilemma.userVote === "a"}
-        color="a"
-      />
-      <ResultBar
-        label={dilemma.optionB}
-        percent={bPercent}
-        isWinner={bPercent > aPercent}
-        isSelected={dilemma.userVote === "b"}
-        color="b"
+        dilemma={dilemma}
+        aPercent={aPercent}
+        bPercent={bPercent}
       />
 
       <p className="text-center text-sm text-muted-foreground">
@@ -367,9 +385,53 @@ function Results({
       </p>
 
       <div className="flex flex-col items-center gap-3 pt-2">
-        <Button variant="outline" className="rounded-full" onClick={onNext}>
-          ← Previous dilemma
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="rounded-full" onClick={onNext}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            Next dilemma
+          </Button>
+
+          {showLikeButton && (
+            <button
+              onClick={handleLike}
+              disabled={liked}
+              className={`flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
+                liked
+                  ? "border-red-200 bg-red-50 text-red-500 dark:border-red-900 dark:bg-red-950"
+                  : "border-border text-muted-foreground hover:bg-muted"
+              } disabled:cursor-default`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill={liked ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={liked ? "text-red-500" : ""}
+              >
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+              </svg>
+              {liked ? `Loved! ${likeCount}` : `Loved this! ${likeCount > 0 ? likeCount : ""}`}
+            </button>
+          )}
+        </div>
 
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
@@ -475,54 +537,68 @@ function Results({
 }
 
 function ResultBar({
-  label,
-  percent,
-  isWinner,
-  isSelected,
-  color,
+  dilemma,
+  aPercent,
+  bPercent,
 }: {
-  label: string;
-  percent: number;
-  isWinner: boolean;
-  isSelected: boolean;
-  color: "a" | "b";
+  dilemma: Dilemma;
+  aPercent: number;
+  bPercent: number;
 }) {
-  const bgClass = color === "a" ? "bg-option-a" : "bg-option-b";
+  const aWins = aPercent >= bPercent;
+  const checkIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between text-sm font-medium">
+      {/* Labels row */}
+      <div className="flex items-end justify-between text-sm font-medium">
         <span className="flex items-center gap-1.5">
-          {isSelected && (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={color === "a" ? "text-option-a" : "text-option-b"}
-            >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
+          {dilemma.userVote === "a" && (
+            <span className="text-option-a">{checkIcon}</span>
           )}
-          <span className={isWinner ? "font-bold" : "text-muted-foreground"}>
-            {label}
+          <span className={aWins ? "font-bold" : "text-muted-foreground"}>
+            {dilemma.optionA}
+          </span>
+          <span className={aWins ? "font-bold text-lg" : "text-muted-foreground"}>
+            {aPercent}%
           </span>
         </span>
-        <span
-          className={isWinner ? "font-bold text-lg" : "text-muted-foreground"}
-        >
-          {percent}%
+        <span className="flex items-center gap-1.5">
+          <span className={!aWins ? "font-bold text-lg" : "text-muted-foreground"}>
+            {bPercent}%
+          </span>
+          <span className={!aWins ? "font-bold" : "text-muted-foreground"}>
+            {dilemma.optionB}
+          </span>
+          {dilemma.userVote === "b" && (
+            <span className="text-option-b">{checkIcon}</span>
+          )}
         </span>
       </div>
-      <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
+
+      {/* Single combined bar */}
+      <div className="flex h-5 w-full overflow-hidden rounded-full">
         <div
-          className={`animate-bar-fill h-full rounded-full ${bgClass} ${isWinner ? "animate-pulse-glow" : ""}`}
-          style={{ width: `${percent}%` }}
+          className="animate-bar-fill h-full bg-option-a transition-all"
+          style={{ width: `${aPercent}%` }}
+        />
+        <div
+          className="h-full bg-option-b transition-all"
+          style={{ width: `${bPercent}%` }}
         />
       </div>
     </div>

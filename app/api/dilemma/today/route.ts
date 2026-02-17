@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { eq, sql, notInArray, count, lte, and, desc } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { dilemmas, votes } from "@/lib/db/schema";
+import { dilemmas, votes, likes } from "@/lib/db/schema";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -59,6 +59,21 @@ export async function GET() {
   const a = voteCounts.find((v) => v.choice === "a")?.count ?? 0;
   const b = voteCounts.find((v) => v.choice === "b")?.count ?? 0;
 
+  // Get like count and whether this session liked it
+  const [{ likeCount }] = await db
+    .select({ likeCount: sql<number>`count(*)::int` })
+    .from(likes)
+    .where(eq(likes.dilemmaId, unanswered.id));
+
+  const userLiked = sessionId
+    ? await db
+        .select({ id: likes.id })
+        .from(likes)
+        .where(and(eq(likes.dilemmaId, unanswered.id), eq(likes.sessionId, sessionId)))
+        .limit(1)
+        .then((rows) => rows.length > 0)
+    : false;
+
   return NextResponse.json({
     dilemma: {
       id: unanswered.id,
@@ -68,6 +83,8 @@ export async function GET() {
       publishedDate: unanswered.publishedDate,
       votes: { a, b },
       userVote: null,
+      likes: likeCount,
+      userLiked,
     },
     answeredCount,
     totalCount: total,
