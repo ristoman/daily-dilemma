@@ -1,11 +1,16 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
+import { Client } from "@notionhq/client";
 import { readContext, writeContext } from "../lib/context.js";
 
 const POSTHOG_HOST = "https://eu.posthog.com";
 const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;
 const POSTHOG_PROJECT_ID = process.env.POSTHOG_PROJECT_ID;
+const NOTION_API_KEY = process.env.NOTION_API_KEY;
+const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+
+const notion = new Client({ auth: NOTION_API_KEY });
 
 // --- PostHog helper ---
 
@@ -178,7 +183,7 @@ function checkExperimentPipeline(ctx) {
     messages.push("\u2500".repeat(30));
     messages.push(`ID:        ${next.id}`);
     messages.push(`Statement: ${next.statement}`);
-    messages.push(`Target:    ${next.targetGoal || "—"}`);
+    messages.push(`Target:    ${next.targetGoal || "\u2014"}`);
     messages.push(
       "Action:    Create PostHog experiment with feature flag, then link experimentId in context.json"
     );
@@ -267,6 +272,104 @@ function writeDailyPulse(ctx, metrics, anomalies) {
   while (ctx.dailyPulse.length > 90) ctx.dailyPulse.shift();
 }
 
+// --- Notion writer ---
+
+async function writeToNotion(today, metrics, anomalies, pipeline) {
+  const hasAnomalies = anomalies.length > 0;
+  const emoji = hasAnomalies ? "\u26a0\ufe0f" : "\u2705";
+  const statusLabel =
+    pipeline.status === "experiment-running"
+      ? "Experiment running"
+      : pipeline.status === "recommendation"
+        ? "Next hypothesis ready"
+        : "Idle";
+
+  const metricsBlock = [
+    `Pageviews:       ${metrics.pageviews}`,
+    `Votes:           ${metrics.votes}`,
+    `Sessions:        ${metrics.sessions}`,
+    `Unique voters:   ${metrics.uniqueVoters}`,
+    `Completion rate: ${metrics.voteCompletionRate}%`,
+    `Return rate:     ${metrics.returnRate}%`,
+    `Share conv.:     ${metrics.shareConversion}%`,
+  ].join("\n");
+
+  const children = [
+    {
+      object: "block",
+      type: "heading_2",
+      heading_2: {
+        rich_text: [{ text: { content: "Metrics (last 24h)" } }],
+      },
+    },
+    {
+      object: "block",
+      type: "code",
+      code: {
+        rich_text: [{ text: { content: metricsBlock } }],
+        language: "plain text",
+      },
+    },
+  ];
+
+  // Anomalies
+  if (hasAnomalies) {
+    children.push({
+      object: "block",
+      type: "heading_2",
+      heading_2: {
+        rich_text: [{ text: { content: "Anomalies" } }],
+      },
+    });
+    children.push({
+      object: "block",
+      type: "callout",
+      callout: {
+        icon: { type: "emoji", emoji: "\u26a0\ufe0f" },
+        rich_text: [{ text: { content: anomalies.join("\n") } }],
+      },
+    });
+  }
+
+  // Pipeline status
+  children.push({
+    object: "block",
+    type: "heading_2",
+    heading_2: {
+      rich_text: [{ text: { content: "Experiment Pipeline" } }],
+    },
+  });
+
+  const pipelineText = pipeline.messages.filter((m) => m.length > 0).join("\n");
+  children.push({
+    object: "block",
+    type: "code",
+    code: {
+      rich_text: [{ text: { content: pipelineText || "No activity." } }],
+      language: "plain text",
+    },
+  });
+
+  await notion.pages.create({
+    parent: { database_id: NOTION_DATABASE_ID },
+    properties: {
+      Title: {
+        title: [
+          {
+            text: {
+              content: `${emoji} Daily Scan \u2014 ${today} \u2014 ${statusLabel}`,
+            },
+          },
+        ],
+      },
+      Week: {
+        rich_text: [{ text: { content: today } }],
+      },
+    },
+    children,
+  });
+}
+
 // --- Main ---
 
 async function dailyScan() {
@@ -313,6 +416,15 @@ async function dailyScan() {
   writeDailyPulse(ctx, metrics, anomalies);
   writeContext(ctx);
   console.log(`  Recorded pulse for ${today}. Total entries: ${ctx.dailyPulse.length}`);
+
+  // 4. Write to Notion
+  if (NOTION_API_KEY && NOTION_DATABASE_ID) {
+    console.log("\n  Writing to Notion...");
+    await writeToNotion(today, metrics, anomalies, pipeline);
+    console.log("  Created daily scan page in Notion.");
+  } else {
+    console.log("\n  Skipping Notion (NOTION_API_KEY or NOTION_DATABASE_ID not set).");
+  }
 
   // One-line summary
   const flag = anomalies.length > 0 ? "(!)" : "(ok)";
