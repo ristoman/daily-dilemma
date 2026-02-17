@@ -1,37 +1,5 @@
 {
-  "lastUpdated": null,
-  "goals": {
-    "dailyActiveVoters": {
-      "target": 50,
-      "unit": "unique sessions/day",
-      "deadline": "2026-04-13",
-      "metric": "vote_cast unique $session_id per day"
-    },
-    "voteCompletionRate": {
-      "target": 60,
-      "unit": "%",
-      "deadline": "2026-03-16",
-      "metric": "vote_cast / $pageview ratio"
-    },
-    "returnRate": {
-      "target": 25,
-      "unit": "%",
-      "deadline": "2026-03-30",
-      "metric": "sessions with >1 pageview / total sessions"
-    },
-    "shareConversion": {
-      "target": 5,
-      "unit": "%",
-      "deadline": "2026-03-30",
-      "metric": "share_clicked / vote_cast ratio"
-    },
-    "experimentVelocity": {
-      "target": 2,
-      "unit": "concluded experiments/month",
-      "deadline": null,
-      "metric": "experiments with status concluded or rolled-back per month"
-    }
-  },
+  "lastUpdated": "2026-02-17T17:29:53.396Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -39,9 +7,9 @@
       "source": "manual",
       "statement": "We believe adding a like button to dilemmas will increase engagement, measurable by likes per vote and return rate",
       "rationale": "A lightweight like action after voting gives users a way to signal content quality. Tracking like rate per dilemma provides a content quality metric and increases interaction depth per session.",
-      "status": "proposed",
+      "status": "running",
       "targetGoal": "returnRate",
-      "experimentId": null,
+      "experimentId": "exp-74403",
       "result": null,
       "metrics": {}
     },
@@ -88,15 +56,67 @@
       "experimentId": null,
       "result": null,
       "metrics": {},
-      "dependsOn": ["hyp-manual-001", "hyp-manual-002"]
+      "dependsOn": [
+        "hyp-manual-001",
+        "hyp-manual-002"
+      ]
     }
   ],
-  "experiments": [],
+  "experiments": [
+    {
+      "id": "exp-74403",
+      "hypothesisId": "hyp-manual-001",
+      "flagKey": "like-button",
+      "name": "Like Button — hyp-manual-001",
+      "startedAt": "2026-02-17",
+      "status": "running",
+      "recommendation": "wait",
+      "endedAt": null,
+      "result": {
+        "winner": null,
+        "pValue": null,
+        "sampleSize": null
+      }
+    }
+  ],
   "incidents": [],
   "weeklyMetrics": [],
+  "dailyPulse": [],
   "dilemmaQueue": {
     "lastGenerated": null,
     "scheduledThrough": null,
     "totalCount": 0
+  },
+  "goals": {
+    "dailyActiveVoters": {
+      "target": 50,
+      "unit": "unique sessions/day",
+      "deadline": "2026-04-13",
+      "metric": "vote_cast unique $session_id per day"
+    },
+    "voteCompletionRate": {
+      "target": 60,
+      "unit": "%",
+      "deadline": "2026-03-16",
+      "metric": "vote_cast / $pageview ratio"
+    },
+    "returnRate": {
+      "target": 25,
+      "unit": "%",
+      "deadline": "2026-03-30",
+      "metric": "sessions with >1 pageview / total sessions"
+    },
+    "shareConversion": {
+      "target": 5,
+      "unit": "%",
+      "deadline": "2026-03-30",
+      "metric": "share_clicked / vote_cast ratio"
+    },
+    "experimentVelocity": {
+      "target": 2,
+      "unit": "concluded experiments/month",
+      "deadline": null,
+      "metric": "experiments with status concluded or rolled-back per month"
+    }
   }
 }

@@ -25,6 +25,15 @@ export const votes = pgTable("votes", {
   sessionId: text("session_id").notNull(),
 });
 
+export const likes = pgTable("likes", {
+  id: serial("id").primaryKey(),
+  dilemmaId: integer("dilemma_id")
+    .notNull()
+    .references(() => dilemmas.id),
+  sessionId: text("session_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const feedback = pgTable("feedback", {
   id: serial("id").primaryKey(),
   message: text("message").notNull(),
