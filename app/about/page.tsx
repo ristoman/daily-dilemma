@@ -77,7 +77,9 @@ export default async function AboutPage() {
                 A weekly scan feeds the analytics into Claude, which identifies
                 UX issues and opportunities. It outputs ranked hypotheses
                 formatted as &ldquo;We believe [change] will [outcome]
-                measurable by [metric].&rdquo;{" "}
+                measurable by [metric].&rdquo; A daily health check tracks
+                metrics against baselines and flags anomalies, keeping the
+                feedback loop tight without waiting a full week to react.
               </p>
             </div>
             <div>
@@ -91,9 +93,11 @@ export default async function AboutPage() {
             <div>
               <h3 className="font-semibold text-foreground">Experiment</h3>
               <p>
-                Hypotheses get turned into A/B tests via feature flags. An
-                experiment monitor checks statistical significance and
-                recommends whether to ship, roll back, or keep running.
+                Hypotheses get turned into A/B tests via feature flags. A daily
+                pipeline coordinates the experiment lifecycle: it checks
+                dependencies, recommends the next hypothesis to test, and an
+                experiment monitor evaluates statistical significance to decide
+                whether to ship, roll back, or keep running.
               </p>
             </div>
             <div>
