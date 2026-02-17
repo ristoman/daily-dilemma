@@ -557,7 +557,7 @@ function AllCaughtUp({ answeredCount }: { answeredCount: number }) {
       <h2 className="text-3xl font-extrabold sm:text-4xl">
         You&apos;ve conquered them all
       </h2>
-      <p className="text-muted-foreground whitespace-nowrap">
+      <p className="text-muted-foreground">
         {answeredCount} dilemmas answered. New ones drop at midnight CET.
       </p>
 
