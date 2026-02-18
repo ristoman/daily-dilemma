@@ -18,7 +18,8 @@ export async function GET() {
     answeredIds = answered.map((r) => r.dilemmaId);
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  // Use Europe/Berlin date so dilemmas unlock at midnight CET/CEST
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
 
   // Get the most recent unanswered dilemma that has been published
   const unanswered = await db

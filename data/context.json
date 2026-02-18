@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "lastUpdated": "2026-02-18T23:05:24.146Z",
+=======
+  "lastUpdated": "2026-02-18T04:21:21.477Z",
+>>>>>>> 50ab9c1e4453a531d1b3ce9c9d92c8e9f845c866
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -83,6 +87,7 @@
   "weeklyMetrics": [],
   "dailyPulse": [
     {
+<<<<<<< HEAD
       "date": "2026-02-18",
       "pageviews": 30,
       "votes": 73,
@@ -90,17 +95,35 @@
       "uniqueVoters": 13,
       "voteCompletionRate": 243.3,
       "returnRate": 11.5,
+=======
+      "date": "2026-02-17",
+      "pageviews": 139,
+      "votes": 207,
+      "sessions": 64,
+      "uniqueVoters": 44,
+      "voteCompletionRate": 148.9,
+      "returnRate": 29.7,
+>>>>>>> 50ab9c1e4453a531d1b3ce9c9d92c8e9f845c866
       "shareConversion": 0,
       "anomalies": null
     },
     {
       "date": "2026-02-18",
+<<<<<<< HEAD
       "pageviews": 30,
       "votes": 73,
       "sessions": 26,
       "uniqueVoters": 13,
       "voteCompletionRate": 243.3,
       "returnRate": 11.5,
+=======
+      "pageviews": 146,
+      "votes": 260,
+      "sessions": 67,
+      "uniqueVoters": 50,
+      "voteCompletionRate": 178.1,
+      "returnRate": 31.3,
+>>>>>>> 50ab9c1e4453a531d1b3ce9c9d92c8e9f845c866
       "shareConversion": 0,
       "anomalies": null
     }
