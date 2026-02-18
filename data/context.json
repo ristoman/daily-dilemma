@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-17T17:29:53.396Z",
+  "lastUpdated": "2026-02-18T23:05:24.146Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -81,7 +81,30 @@
   ],
   "incidents": [],
   "weeklyMetrics": [],
-  "dailyPulse": [],
+  "dailyPulse": [
+    {
+      "date": "2026-02-18",
+      "pageviews": 30,
+      "votes": 73,
+      "sessions": 26,
+      "uniqueVoters": 13,
+      "voteCompletionRate": 243.3,
+      "returnRate": 11.5,
+      "shareConversion": 0,
+      "anomalies": null
+    },
+    {
+      "date": "2026-02-18",
+      "pageviews": 30,
+      "votes": 73,
+      "sessions": 26,
+      "uniqueVoters": 13,
+      "voteCompletionRate": 243.3,
+      "returnRate": 11.5,
+      "shareConversion": 0,
+      "anomalies": null
+    }
+  ],
   "dilemmaQueue": {
     "lastGenerated": null,
     "scheduledThrough": null,

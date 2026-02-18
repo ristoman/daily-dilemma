@@ -84,22 +84,20 @@ async function launch() {
     parameters: {},
     metrics: [
       {
-        kind: "ExperimentTrendsQuery",
-        query: {
-          kind: "TrendsQuery",
-          series: [{ kind: "EventsNode", event: "dilemma_liked" }],
-        },
-        type: "primary",
+        kind: "ExperimentMetric",
+        metric_type: "mean",
+        name: "Dilemma Liked",
+        source: { kind: "EventsNode", event: "dilemma_liked" },
+        goal: "increase",
       },
     ],
     secondary_metrics: [
       {
-        kind: "ExperimentTrendsQuery",
-        query: {
-          kind: "TrendsQuery",
-          series: [{ kind: "EventsNode", event: "vote_cast" }],
-        },
-        type: "secondary",
+        kind: "ExperimentMetric",
+        metric_type: "mean",
+        name: "Votes Cast",
+        source: { kind: "EventsNode", event: "vote_cast" },
+        goal: "increase",
       },
     ],
   });
