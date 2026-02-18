@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-17T18:40:31.251Z",
+  "lastUpdated": "2026-02-18T04:21:21.477Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -90,6 +90,17 @@
       "uniqueVoters": 44,
       "voteCompletionRate": 148.9,
       "returnRate": 29.7,
+      "shareConversion": 0,
+      "anomalies": null
+    },
+    {
+      "date": "2026-02-18",
+      "pageviews": 146,
+      "votes": 260,
+      "sessions": 67,
+      "uniqueVoters": 50,
+      "voteCompletionRate": 178.1,
+      "returnRate": 31.3,
       "shareConversion": 0,
       "anomalies": null
     }
