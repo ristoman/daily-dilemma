@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-20T04:14:19.429Z",
+  "lastUpdated": "2026-02-21T04:05:13.404Z",
   "hypotheses": [],
   "experiments": [],
   "incidents": [],
@@ -25,6 +25,17 @@
       "voteCompletionRate": 250,
       "returnRate": 6.7,
       "shareConversion": 2.5,
+      "anomalies": null
+    },
+    {
+      "date": "2026-02-21",
+      "pageviews": 14,
+      "votes": 41,
+      "sessions": 11,
+      "uniqueVoters": 7,
+      "voteCompletionRate": 292.9,
+      "returnRate": 18.2,
+      "shareConversion": 0,
       "anomalies": null
     }
   ],
