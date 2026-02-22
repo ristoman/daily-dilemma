@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-21T04:05:13.404Z",
+  "lastUpdated": "2026-02-22T04:16:00.993Z",
   "hypotheses": [],
   "experiments": [],
   "incidents": [],
@@ -37,6 +37,24 @@
       "returnRate": 18.2,
       "shareConversion": 0,
       "anomalies": null
+    },
+    {
+      "date": "2026-02-22",
+      "pageviews": 5,
+      "votes": 20,
+      "sessions": 5,
+      "uniqueVoters": 4,
+      "voteCompletionRate": 400,
+      "returnRate": 0,
+      "shareConversion": 10,
+      "anomalies": [
+        "ANOMALY: pageviews = 5 (avg 22, -76.9%)",
+        "ANOMALY: votes = 20 (avg 57, -65.1%)",
+        "ANOMALY: sessions = 5 (avg 19, -73.2%)",
+        "ANOMALY: voteCompletionRate = 400 (avg 268, +49.5%)",
+        "ANOMALY: returnRate = 0 (avg 13, -100.0%)",
+        "ANOMALY: shareConversion = 10 (avg 1, +1100.0%)"
+      ]
     }
   ],
   "dilemmaQueue": {
