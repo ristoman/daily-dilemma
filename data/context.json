@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-25T04:19:49.231Z",
+  "lastUpdated": "2026-02-25T18:05:40.849Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -46,6 +46,18 @@
       "dependsOn": "hyp-manual-001"
     },
     {
+      "id": "hyp-exp-001",
+      "createdAt": "2026-02-25",
+      "source": "manual",
+      "statement": "We believe showing a teaser of the next dilemma on the results screen will increase the rate of users answering a second dilemma, measurable by keep_going_clicked / results_viewed",
+      "rationale": "85% of users drop off after the first dilemma. Replacing the generic 'Keep going' button with a preview of the next question removes the unknown and creates curiosity-driven pull.",
+      "status": "running",
+      "targetGoal": "secondPageRate",
+      "experimentId": "exp-74961",
+      "result": null,
+      "metrics": {}
+    },
+    {
       "id": "hyp-manual-004",
       "createdAt": "2026-02-17",
       "source": "manual",
@@ -69,6 +81,21 @@
       "flagKey": "like-button",
       "name": "Like Button — hyp-manual-001",
       "startedAt": "2026-02-17",
+      "status": "running",
+      "recommendation": "wait",
+      "endedAt": null,
+      "result": {
+        "winner": null,
+        "pValue": null,
+        "sampleSize": null
+      }
+    },
+    {
+      "id": "exp-74961",
+      "hypothesisId": "hyp-exp-001",
+      "flagKey": "next-dilemma-teaser",
+      "name": "Next Dilemma Teaser — hyp-exp-001",
+      "startedAt": "2026-02-25",
       "status": "running",
       "recommendation": "wait",
       "endedAt": null,

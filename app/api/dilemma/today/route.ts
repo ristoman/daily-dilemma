@@ -21,8 +21,8 @@ export async function GET() {
   // Use Europe/Berlin date so dilemmas unlock at midnight CET/CEST
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
 
-  // Get the most recent unanswered dilemma that has been published
-  const unanswered = await db
+  // Get the two most recent unanswered dilemmas (first = current, second = teaser)
+  const unansweredRows = await db
     .select()
     .from(dilemmas)
     .where(
@@ -32,8 +32,10 @@ export async function GET() {
       )
     )
     .orderBy(desc(dilemmas.publishedDate))
-    .limit(1)
-    .then((rows) => rows[0]);
+    .limit(2);
+
+  const unanswered = unansweredRows[0];
+  const nextQuestion = unansweredRows[1]?.question ?? null;
 
   // Get total published dilemma count
   const [{ total }] = await db
@@ -89,5 +91,6 @@ export async function GET() {
     },
     answeredCount,
     totalCount: total,
+    nextQuestion,
   });
 }

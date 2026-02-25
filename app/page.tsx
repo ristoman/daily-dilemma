@@ -19,6 +19,7 @@ type Dilemma = {
 export default function Home() {
   const posthog = usePostHog();
   const [dilemma, setDilemma] = useState<Dilemma | null>(null);
+  const [nextQuestion, setNextQuestion] = useState<string | null>(null);
   const [allAnswered, setAllAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
@@ -44,6 +45,7 @@ export default function Home() {
       .then((res) => res.json())
       .then((data) => {
         if (data.answeredCount != null) setAnsweredCount(data.answeredCount);
+        setNextQuestion(data.nextQuestion ?? null);
         if (data.dilemma) {
           setDilemma(data.dilemma);
           setAllAnswered(false);
@@ -99,7 +101,7 @@ export default function Home() {
           )}
         </div>
         <div className="flex flex-col items-center gap-0.5">
-          <h1 className="text-sm font-extrabold uppercase text-white">
+          <h1 className="text-sm font-extrabold uppercase text-foreground">
             Daily Dilemma
           </h1>
           <p className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">
@@ -196,6 +198,7 @@ export default function Home() {
               /* Results */
               <Results
                 dilemma={dilemma}
+                nextQuestion={nextQuestion}
                 onNext={fetchDilemma}
                 copied={copied}
                 setCopied={setCopied}
@@ -324,12 +327,14 @@ function FeedbackForm({ posthog }: { posthog: ReturnType<typeof usePostHog> }) {
 
 function Results({
   dilemma,
+  nextQuestion,
   onNext,
   copied,
   setCopied,
   posthog,
 }: {
   dilemma: Dilemma;
+  nextQuestion: string | null;
   onNext: () => void;
   copied: boolean;
   setCopied: (v: boolean) => void;
@@ -342,6 +347,9 @@ function Results({
   const flagEnabled = useFeatureFlagEnabled("like-button");
   const isDev = typeof window !== "undefined" && window.location.hostname === "localhost";
   const showLikeButton = isDev || flagEnabled === true;
+
+  const teaserEnabled = useFeatureFlagEnabled("next-dilemma-teaser");
+  const showTeaser = (isDev || teaserEnabled === true) && !!nextQuestion;
 
   const [liked, setLiked] = useState(dilemma.userLiked);
   const [likeCount, setLikeCount] = useState(dilemma.likes);
@@ -385,25 +393,7 @@ function Results({
       </p>
 
       <div className="flex flex-col items-center gap-3 pt-2">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-full" onClick={onNext}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
-            Keep going
-          </Button>
-
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {showLikeButton && (
             <button
               onClick={handleLike}
@@ -431,9 +421,7 @@ function Results({
               {liked ? `Loved! ${likeCount}` : `Loved this! ${likeCount > 0 ? likeCount : ""}`}
             </button>
           )}
-        </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             variant="ghost"
             size="sm"
@@ -531,6 +519,50 @@ function Results({
             Bluesky
           </Button>
         </div>
+
+        {showTeaser ? (
+          <div className="w-full rounded-2xl border bg-muted/50 px-5 py-4 flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-1 min-w-0">
+              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Up next</span>
+              <span className="text-sm font-medium text-foreground line-clamp-2">{nextQuestion}</span>
+            </div>
+            <Button variant="outline" className="rounded-full shrink-0" onClick={() => { posthog.capture("keep_going_clicked", { dilemma_id: dilemma.id }); onNext(); }}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+              Keep going
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" className="rounded-full" onClick={() => { posthog.capture("keep_going_clicked", { dilemma_id: dilemma.id }); onNext(); }}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            Keep going
+          </Button>
+        )}
       </div>
     </div>
   );
