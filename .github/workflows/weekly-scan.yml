@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Run weekly scan
-        run: npx tsx scripts/weekly-scan.js
+        run: npm run weekly-scan
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}

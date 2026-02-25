@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Run watchdog
-        run: npx tsx scripts/watchdog.js
+        run: npm run watchdog
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}

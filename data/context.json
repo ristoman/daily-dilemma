@@ -1,10 +1,109 @@
 {
   "lastUpdated": "2026-02-25T04:19:49.231Z",
-  "hypotheses": [],
-  "experiments": [],
+  "hypotheses": [
+    {
+      "id": "hyp-manual-001",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe adding a like button to dilemmas will increase engagement, measurable by likes per vote and return rate",
+      "rationale": "A lightweight like action after voting gives users a way to signal content quality. Tracking like rate per dilemma provides a content quality metric and increases interaction depth per session.",
+      "status": "running",
+      "targetGoal": "returnRate",
+      "experimentId": "exp-74403",
+      "result": null,
+      "metrics": {}
+    },
+    {
+      "id": "hyp-manual-002",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe adding a skip button to dilemmas will increase vote completion rate, measurable by vote_cast / pageview ratio",
+      "rationale": "Users who don't connect with a dilemma currently bounce. A skip button keeps them in the flow and moves them to a dilemma they care about, converting would-be bounces into votes.",
+      "status": "proposed",
+      "targetGoal": "voteCompletionRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {},
+      "designNotes": {
+        "skipBehavior": "One-tap skip, do not resurface the skipped dilemma for that session",
+        "afterSkip": "Show results view (vote percentages, total votes) without highlighting a choice",
+        "publicVisibility": "Do not show skip count publicly — track internally for content quality signals",
+        "analytics": "Track dilemma_skipped event in PostHog with dilemma ID",
+        "feedsInto": "Skip data feeds into weekly-scan and dilemma generation (hyp-manual-004)"
+      }
+    },
+    {
+      "id": "hyp-manual-003",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe a Top 10 most liked dilemmas page will increase return rate, measurable by sessions with >1 pageview",
+      "rationale": "Once enough likes accumulate, a curated 'best of' page gives returning users a reason to come back beyond the daily question. Requires hyp-manual-001 (likes) to be shipped first.",
+      "status": "proposed",
+      "targetGoal": "returnRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {},
+      "dependsOn": "hyp-manual-001"
+    },
+    {
+      "id": "hyp-manual-004",
+      "createdAt": "2026-02-17",
+      "source": "manual",
+      "statement": "We believe feeding like/skip signals into dilemma generation will improve content quality over time, measurable by like ratio and vote completion rate trending upward",
+      "rationale": "Like and skip data creates a feedback loop for content generation. Rather than copying popular topics, Claude should identify underlying themes that resonate (e.g. 'nostalgia-driven choices', 'false dichotomies in everyday habits') and generate dilemmas that tap into those patterns while maintaining topical diversity. Requires hyp-manual-001 and hyp-manual-002 to be shipped first.",
+      "status": "proposed",
+      "targetGoal": "voteCompletionRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {},
+      "dependsOn": [
+        "hyp-manual-001",
+        "hyp-manual-002"
+      ]
+    }
+  ],
+  "experiments": [
+    {
+      "id": "exp-74403",
+      "hypothesisId": "hyp-manual-001",
+      "flagKey": "like-button",
+      "name": "Like Button — hyp-manual-001",
+      "startedAt": "2026-02-17",
+      "status": "running",
+      "recommendation": "wait",
+      "endedAt": null,
+      "result": {
+        "winner": null,
+        "pValue": null,
+        "sampleSize": null
+      }
+    }
+  ],
   "incidents": [],
   "weeklyMetrics": [],
   "dailyPulse": [
+    {
+      "date": "2026-02-17",
+      "pageviews": 139,
+      "votes": 207,
+      "sessions": 64,
+      "uniqueVoters": 44,
+      "voteCompletionRate": 148.9,
+      "returnRate": 29.7,
+      "shareConversion": 0,
+      "anomalies": null
+    },
+    {
+      "date": "2026-02-18",
+      "pageviews": 146,
+      "votes": 260,
+      "sessions": 67,
+      "uniqueVoters": 50,
+      "voteCompletionRate": 178.1,
+      "returnRate": 31.3,
+      "shareConversion": 0,
+      "anomalies": null
+    },
     {
       "date": "2026-02-19",
       "pageviews": 35,
@@ -114,5 +213,37 @@
     "lastGenerated": null,
     "scheduledThrough": null,
     "totalCount": 0
+  },
+  "goals": {
+    "dailyActiveVoters": {
+      "target": 50,
+      "unit": "unique sessions/day",
+      "deadline": "2026-04-13",
+      "metric": "vote_cast unique $session_id per day"
+    },
+    "voteCompletionRate": {
+      "target": 60,
+      "unit": "%",
+      "deadline": "2026-03-16",
+      "metric": "vote_cast / $pageview ratio"
+    },
+    "returnRate": {
+      "target": 25,
+      "unit": "%",
+      "deadline": "2026-03-30",
+      "metric": "sessions with >1 pageview / total sessions"
+    },
+    "shareConversion": {
+      "target": 5,
+      "unit": "%",
+      "deadline": "2026-03-30",
+      "metric": "share_clicked / vote_cast ratio"
+    },
+    "experimentVelocity": {
+      "target": 2,
+      "unit": "concluded experiments/month",
+      "deadline": null,
+      "metric": "experiments with status concluded or rolled-back per month"
+    }
   }
 }

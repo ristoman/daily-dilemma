@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Run weekly changelog
-        run: npx tsx scripts/weekly-changelog.js
+        run: npm run weekly-changelog
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
