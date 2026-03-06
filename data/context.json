@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-05T04:10:39.086Z",
+  "lastUpdated": "2026-03-06T04:07:44.492Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -371,6 +371,23 @@
         "ANOMALY: sessions = 0 (avg 3, -100.0%)",
         "ANOMALY: voteCompletionRate = 0 (avg 94, -100.0%)",
         "ANOMALY: returnRate = 0 (avg 7, -100.0%)"
+      ]
+    },
+    {
+      "date": "2026-03-06",
+      "pageviews": 4,
+      "votes": 7,
+      "sessions": 3,
+      "uniqueVoters": 2,
+      "voteCompletionRate": 175,
+      "returnRate": 33.3,
+      "shareConversion": 85.7,
+      "anomalies": [
+        "ANOMALY: pageviews = 4 (avg 2, +100.0%)",
+        "ANOMALY: votes = 7 (avg 1, +512.5%)",
+        "ANOMALY: sessions = 3 (avg 2, +75.0%)",
+        "ANOMALY: voteCompletionRate = 175 (avg 40, +337.5%)",
+        "ANOMALY: returnRate = 33.3 (avg 5, +600.0%)"
       ]
     }
   ],
