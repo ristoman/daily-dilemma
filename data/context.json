@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-06-29T06:43:32.527Z",
+  "lastUpdated": "2026-06-30T06:08:28.388Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -109,19 +109,6 @@
   "incidents": [],
   "weeklyMetrics": [],
   "dailyPulse": [
-    {
-      "date": "2026-03-31",
-      "pageviews": 1,
-      "votes": 0,
-      "sessions": 1,
-      "uniqueVoters": 0,
-      "voteCompletionRate": 0,
-      "returnRate": 0,
-      "shareConversion": 0,
-      "anomalies": [
-        "ANOMALY: sessions = 1 (avg 0, +133.3%)"
-      ]
-    },
     {
       "date": "2026-04-01",
       "pageviews": 1,
@@ -1448,6 +1435,20 @@
       "anomalies": [
         "ANOMALY: pageviews = 0 (avg 0, -100.0%)",
         "ANOMALY: sessions = 0 (avg 0, -100.0%)"
+      ]
+    },
+    {
+      "date": "2026-06-30",
+      "pageviews": 1,
+      "votes": 1,
+      "sessions": 1,
+      "uniqueVoters": 1,
+      "voteCompletionRate": 100,
+      "returnRate": 0,
+      "shareConversion": 0,
+      "anomalies": [
+        "ANOMALY: pageviews = 1 (avg 0, +250.0%)",
+        "ANOMALY: sessions = 1 (avg 0, +250.0%)"
       ]
     }
   ],
