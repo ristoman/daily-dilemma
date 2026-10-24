@@ -91,7 +91,7 @@ async function launch() {
         goal: "increase",
       },
     ],
-    secondary_metrics: [
+    metrics_secondary: [
       {
         kind: "ExperimentMetric",
         metric_type: "mean",
