@@ -51,6 +51,11 @@ async function fetchExperiments() {
 async function fetchExperimentResults(experiment) {
   const results = [];
 
+  if (!Array.isArray(experiment.metrics)) {
+    console.warn(`  Warning: "${experiment.name}" has no metrics array in PostHog (got ${experiment.metrics === null ? "null" : typeof experiment.metrics}), skipping results`);
+    return results;
+  }
+
   for (const metric of experiment.metrics) {
     try {
       const data = await posthogQuery({
