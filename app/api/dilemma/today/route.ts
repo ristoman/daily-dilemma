@@ -1,10 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { eq, sql, notInArray, count, lte, and, desc } from "drizzle-orm";
+import { eq, sql, notInArray, count, lte, and, desc, asc, gte } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { dilemmas, votes, likes } from "@/lib/db/schema";
 
-export async function GET() {
+type Mode = "newest" | "popular" | "divisive";
+
+// Divisive needs enough votes for the split to mean anything
+const MIN_VOTES_FOR_DIVISIVE = 10;
+
+export async function GET(request: NextRequest) {
+  const requested = request.nextUrl.searchParams.get("mode");
+  let mode: Mode =
+    requested === "popular" || requested === "divisive" ? requested : "newest";
+
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("daily-dilemma-session")?.value;
 
@@ -21,18 +30,49 @@ export async function GET() {
   // Use Europe/Berlin date so dilemmas unlock at midnight CET/CEST
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
 
-  // Get the two most recent unanswered dilemmas (first = current, second = teaser)
-  const unansweredRows = await db
-    .select()
-    .from(dilemmas)
-    .where(
-      and(
-        lte(dilemmas.publishedDate, today),
-        answeredIds.length > 0 ? notInArray(dilemmas.id, answeredIds) : undefined
+  // Per-dilemma vote totals, used to rank by popularity / divisiveness
+  const stats = db
+    .select({
+      dilemmaId: votes.dilemmaId,
+      total: sql<number>`count(*)::int`.as("total"),
+      aCount: sql<number>`(count(*) filter (where ${votes.choice} = 'a'))::int`.as("a_count"),
+    })
+    .from(votes)
+    .groupBy(votes.dilemmaId)
+    .as("vote_stats");
+
+  const totalVotes = sql<number>`coalesce(${stats.total}, 0)`;
+  // Distance of the A/B split from 50/50 (0 = perfectly divisive)
+  const skew = sql`abs(${stats.aCount}::float / nullif(${stats.total}, 0) - 0.5)`;
+
+  // Get the two best unanswered dilemmas for the mode (first = current, second = teaser)
+  const fetchUnanswered = (m: Mode) =>
+    db
+      .select({ dilemma: dilemmas })
+      .from(dilemmas)
+      .leftJoin(stats, eq(stats.dilemmaId, dilemmas.id))
+      .where(
+        and(
+          lte(dilemmas.publishedDate, today),
+          answeredIds.length > 0 ? notInArray(dilemmas.id, answeredIds) : undefined,
+          m === "divisive" ? gte(totalVotes, MIN_VOTES_FOR_DIVISIVE) : undefined
+        )
       )
-    )
-    .orderBy(desc(dilemmas.publishedDate))
-    .limit(2);
+      .orderBy(
+        ...(m === "popular"
+          ? [desc(totalVotes), desc(dilemmas.publishedDate)]
+          : m === "divisive"
+            ? [asc(skew), desc(totalVotes)]
+            : [desc(dilemmas.publishedDate)])
+      )
+      .limit(2);
+
+  let unansweredRows = (await fetchUnanswered(mode)).map((r) => r.dilemma);
+  if (unansweredRows.length === 0 && mode === "divisive") {
+    // Not enough votes anywhere yet: fall back to newest
+    mode = "newest";
+    unansweredRows = (await fetchUnanswered(mode)).map((r) => r.dilemma);
+  }
 
   const unanswered = unansweredRows[0];
   const nextQuestion = unansweredRows[1]?.question ?? null;
@@ -46,7 +86,7 @@ export async function GET() {
   const answeredCount = answeredIds.length;
 
   if (!unanswered) {
-    return NextResponse.json({ dilemma: null, answeredCount, totalCount: total });
+    return NextResponse.json({ dilemma: null, answeredCount, totalCount: total, mode });
   }
 
   // Get vote counts for this dilemma
@@ -92,5 +132,6 @@ export async function GET() {
     answeredCount,
     totalCount: total,
     nextQuestion,
+    mode,
   });
 }

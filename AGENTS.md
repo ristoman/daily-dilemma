@@ -68,7 +68,8 @@ scripts/              → Automated AI scripts (see table above)
 - Client-side SDK initialized in `components/posthog-provider.tsx`
 - Event names use `snake_case`:
   - `question_loaded` — dilemma displayed
-  - `vote_cast` — user voted (includes `dilemma_id`, `choice`)
+  - `mode_selected` — user switched dilemma mode (includes `mode`: newest/popular/divisive; behind `dilemma-modes` flag)
+  - `vote_cast` — user voted (includes `dilemma_id`, `choice`, `mode`)
   - `results_viewed` — results shown after voting
   - `share_clicked` — share button used (includes `method`)
   - `feedback_submitted` — free-text feedback sent

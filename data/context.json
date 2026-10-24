@@ -72,6 +72,22 @@
         "hyp-manual-001",
         "hyp-manual-002"
       ]
+    },
+    {
+      "id": "hyp-manual-005",
+      "createdAt": "2026-10-24",
+      "source": "manual",
+      "statement": "We believe offering Newest / Most popular / Most divisive modes above the dilemma will increase return rate, measurable by sessions with >1 pageview",
+      "rationale": "The dilemma library has grown well beyond a few questions, so one fixed newest-first order undersells it. Modes let users pick a flavour of play (not individual dilemmas) and give returning users a reason to come back. Flag key: dilemma-modes.",
+      "status": "proposed",
+      "targetGoal": "returnRate",
+      "experimentId": null,
+      "result": null,
+      "metrics": {},
+      "designNotes": {
+        "modes": "newest (default), popular (most votes), divisive (closest to 50/50, min 10 votes, falls back to newest)",
+        "analytics": "mode_selected event; mode property on question_loaded and vote_cast"
+      }
     }
   ],
   "experiments": [

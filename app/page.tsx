@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePostHog, useFeatureFlagEnabled } from "posthog-js/react";
+import { Flame, Sparkles, Swords, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Dilemma = {
@@ -16,8 +17,31 @@ type Dilemma = {
   userLiked: boolean;
 };
 
+type Mode = "newest" | "popular" | "divisive";
+
+const MODES: { id: Mode; label: string; Icon: LucideIcon }[] = [
+  { id: "newest", label: "Newest", Icon: Sparkles },
+  { id: "popular", label: "Most popular", Icon: Flame },
+  { id: "divisive", label: "Most divisive", Icon: Swords },
+];
+
+function loadStoredMode(): Mode {
+  try {
+    const stored = localStorage.getItem("dilemma-mode");
+    if (stored === "popular" || stored === "divisive") return stored;
+  } catch {}
+  return "newest";
+}
+
 export default function Home() {
   const posthog = usePostHog();
+  const modesFlag = useFeatureFlagEnabled("dilemma-modes");
+  const isDevHost = typeof window !== "undefined" && window.location.hostname === "localhost";
+  const showModes = isDevHost || modesFlag === true;
+  const [selectedMode, setSelectedMode] = useState<Mode>("newest");
+  const [modeNote, setModeNote] = useState<string | null>(null);
+  // Users without the flag always get the original newest-first behavior
+  const mode: Mode = showModes ? selectedMode : "newest";
   const [dilemma, setDilemma] = useState<Dilemma | null>(null);
   const [nextQuestion, setNextQuestion] = useState<string | null>(null);
   const [allAnswered, setAllAnswered] = useState(false);
@@ -30,7 +54,17 @@ export default function Home() {
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
+    setSelectedMode(loadStoredMode());
   }, []);
+
+  function selectMode(next: Mode) {
+    if (next === selectedMode) return;
+    setSelectedMode(next);
+    try {
+      localStorage.setItem("dilemma-mode", next);
+    } catch {}
+    posthog.capture("mode_selected", { mode: next });
+  }
 
   function toggleDarkMode() {
     const next = !isDark;
@@ -41,23 +75,28 @@ export default function Home() {
 
   const fetchDilemma = useCallback(() => {
     setLoading(true);
-    fetch("/api/dilemma/today")
+    fetch(`/api/dilemma/today?mode=${mode}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.answeredCount != null) setAnsweredCount(data.answeredCount);
         setNextQuestion(data.nextQuestion ?? null);
+        setModeNote(
+          data.mode && data.mode !== mode
+            ? "Not enough votes yet, showing newest"
+            : null,
+        );
         if (data.dilemma) {
           setDilemma(data.dilemma);
           setAllAnswered(false);
           dilemmaShownAt.current = Date.now();
-          posthog.capture("question_loaded", { dilemma_id: data.dilemma.id });
+          posthog.capture("question_loaded", { dilemma_id: data.dilemma.id, mode });
         } else {
           setDilemma(null);
           setAllAnswered(true);
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [mode]);
 
   useEffect(() => {
     fetchDilemma();
@@ -81,6 +120,7 @@ export default function Home() {
       posthog.capture("vote_cast", {
         dilemma_id: dilemma.id,
         choice,
+        mode,
         time_to_vote_seconds: Math.round(timeToVote * 10) / 10,
       });
       posthog.capture("results_viewed", { dilemma_id: dilemma.id });
@@ -154,6 +194,34 @@ export default function Home() {
           </button>
         </div>
       </header>
+
+      {showModes && (
+        <nav
+          aria-label="Dilemma mode"
+          className="flex flex-col items-center gap-2 px-4"
+        >
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {MODES.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => selectMode(m.id)}
+                aria-pressed={selectedMode === m.id}
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                  selectedMode === m.id
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <m.Icon size={14} aria-hidden="true" />
+                {m.label}
+              </button>
+            ))}
+          </div>
+          {modeNote && (
+            <p className="text-xs text-muted-foreground">{modeNote}</p>
+          )}
+        </nav>
+      )}
 
       {/* Main Content */}
       <main className="flex flex-1 flex-col items-center justify-center gap-10 px-4 pb-16">
