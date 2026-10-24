@@ -45,18 +45,26 @@ async function posthogQuery(query) {
 
 async function fetchExperiments() {
   const data = await posthogGet("/experiments/");
-  return data.results.filter((e) => !e.archived && !e.deleted);
+  const active = data.results.filter((e) => !e.archived && !e.deleted);
+  // The list endpoint omits metrics; they are only returned by the detail endpoint
+  return Promise.all(active.map((e) => posthogGet(`/experiments/${e.id}/`)));
 }
 
 async function fetchExperimentResults(experiment) {
   const results = [];
+  const issues = [];
 
-  if (!Array.isArray(experiment.metrics)) {
-    console.warn(`  Warning: "${experiment.name}" has no metrics array in PostHog (got ${experiment.metrics === null ? "null" : typeof experiment.metrics}), skipping results`);
-    return results;
+  if (!Array.isArray(experiment.metrics) || experiment.metrics.length === 0) {
+    issues.push("no primary metrics configured in PostHog");
   }
 
-  for (const metric of experiment.metrics) {
+  for (const metric of experiment.metrics || []) {
+    const label = metric.name || metric.source?.event || metric.uuid || metric.kind;
+    // Legacy formats (e.g. ExperimentTrendsQuery) have no metric_type and are rejected by ExperimentQuery
+    if (metric.kind !== "ExperimentMetric") {
+      issues.push(`metric "${label}" uses legacy format ${metric.kind}; recreate it as an ExperimentMetric`);
+      continue;
+    }
     try {
       const data = await posthogQuery({
         kind: "ExperimentQuery",
@@ -65,11 +73,19 @@ async function fetchExperimentResults(experiment) {
       });
       results.push({ metric, data });
     } catch (err) {
-      console.warn(`  Warning: Could not fetch results for metric ${metric.uuid}: ${err.message}`);
+      issues.push(`could not fetch results for metric "${label}": ${err.message}`);
     }
   }
 
-  return results;
+  if (experiment.is_legacy) {
+    issues.push("experiment is flagged legacy by PostHog");
+  }
+  if ((experiment.secondary_metrics || []).length > 0) {
+    issues.push("has metrics in the legacy secondary_metrics field, which is not queried (use metrics_secondary)");
+  }
+
+  for (const issue of issues) console.warn(`  Warning: ${issue}`);
+  return { results, issues };
 }
 
 // --- Analysis ---
@@ -345,8 +361,9 @@ async function experimentMonitor() {
   const analyses = [];
   for (const exp of experiments) {
     console.log(`Analyzing: ${exp.name} (${exp.feature_flag_key})...`);
-    const metricResults = await fetchExperimentResults(exp);
+    const { results: metricResults, issues } = await fetchExperimentResults(exp);
     const analysis = analyzeExperiment(exp, metricResults);
+    analysis.setupIssues = issues;
     analyses.push(analysis);
   }
 
