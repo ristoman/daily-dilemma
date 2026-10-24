@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-24T06:50:37.022Z",
+  "lastUpdated": "2026-10-24T09:13:29.360Z",
   "hypotheses": [
     {
       "id": "hyp-manual-001",
@@ -9,7 +9,7 @@
       "rationale": "A lightweight like action after voting gives users a way to signal content quality. Tracking like rate per dilemma provides a content quality metric and increases interaction depth per session.",
       "status": "running",
       "targetGoal": "returnRate",
-      "experimentId": "exp-74403",
+      "experimentId": "exp-104016",
       "result": null,
       "metrics": {}
     },
@@ -53,7 +53,7 @@
       "rationale": "85% of users drop off after the first dilemma. Replacing the generic 'Keep going' button with a preview of the next question removes the unknown and creates curiosity-driven pull.",
       "status": "running",
       "targetGoal": "secondPageRate",
-      "experimentId": "exp-74961",
+      "experimentId": "exp-104017",
       "result": null,
       "metrics": {}
     },
@@ -76,11 +76,11 @@
   ],
   "experiments": [
     {
-      "id": "exp-74403",
+      "id": "exp-104016",
       "hypothesisId": "hyp-manual-001",
       "flagKey": "like-button",
       "name": "Like Button — hyp-manual-001",
-      "startedAt": "2026-02-17",
+      "startedAt": "2026-10-24",
       "status": "running",
       "recommendation": "wait",
       "endedAt": null,
@@ -91,11 +91,11 @@
       }
     },
     {
-      "id": "exp-74961",
+      "id": "exp-104017",
       "hypothesisId": "hyp-exp-001",
       "flagKey": "next-dilemma-teaser",
       "name": "Next Dilemma Teaser — hyp-exp-001",
-      "startedAt": "2026-02-25",
+      "startedAt": "2026-10-24",
       "status": "running",
       "recommendation": "wait",
       "endedAt": null,
