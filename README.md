@@ -47,7 +47,7 @@ The only step that requires a human is deciding which hypothesis to turn into an
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router, React 19)
-- **Database:** Vercel Postgres (Neon) with Drizzle ORM
+- **Database:** Neon Postgres with Drizzle ORM
 - **Styling:** Tailwind CSS v4, shadcn/ui
 - **Analytics:** PostHog (pageviews, custom events, A/B experiments)
 - **Error Tracking:** Sentry
@@ -70,7 +70,7 @@ cp .env.local.example .env.local
 ```
 
 You'll need:
-- `POSTGRES_URL` — Vercel Postgres / Neon connection string
+- `POSTGRES_URL` — Neon Postgres connection string
 - `ANTHROPIC_API_KEY` — for dilemma generation and analysis scripts
 
 3. Push the database schema and seed initial data:

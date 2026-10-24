@@ -10,13 +10,13 @@ Daily Dilemma is a Next.js app that presents a daily "would you rather" question
 npm run dev          # Local dev server (Next.js)
 npm run build        # Production build — run before committing to verify
 npm run lint         # ESLint
-npm run db:push      # Push Drizzle schema to Vercel Postgres
+npm run db:push      # Push Drizzle schema to Postgres
 npm run db:seed      # Seed database with initial dilemmas
 ```
 
 ## Automated scripts
 
-These run on GitHub Actions schedules and can be run locally with `npx tsx`:
+These run on GitHub Actions schedules and can be run locally with `tsx`:
 
 | Script | Schedule | Purpose |
 |---|---|---|
@@ -39,7 +39,7 @@ app/                  → Next.js App Router pages and API routes
   privacy/            → Privacy policy
 components/           → React components (cookie banner, PostHog provider, shadcn/ui)
 lib/
-  db/index.ts         → Drizzle ORM instance (Vercel Postgres)
+  db/index.ts         → Drizzle ORM instance (Neon)
   db/schema.ts        → Database schema (dilemmas, votes, feedback)
   context.js          → readContext() / writeContext() for experiment state
 data/
@@ -49,7 +49,7 @@ scripts/              → Automated AI scripts (see table above)
 
 ## Database
 
-- **Vercel Postgres** via `@vercel/postgres` + Drizzle ORM
+- **Neon Postgres** (Vercel Marketplace) via `@neondatabase/serverless` (HTTP driver) + Drizzle ORM
 - Schema in `lib/db/schema.ts` — three tables: `dilemmas`, `votes`, `feedback`
 - Column names use `snake_case` in the DB, `camelCase` in TypeScript
 - Push schema changes with `npm run db:push` (no migration files)
@@ -101,7 +101,7 @@ When modifying context.json programmatically, always use `writeContext()` — it
 Required in `.env.local` (never commit this file):
 
 ```
-POSTGRES_URL                 # Vercel Postgres connection string
+POSTGRES_URL                 # Neon Postgres connection string
 NEXT_PUBLIC_POSTHOG_KEY      # PostHog project API key
 NEXT_PUBLIC_POSTHOG_HOST     # PostHog host (proxied through /ingest)
 ANTHROPIC_API_KEY            # Claude API key (scripts only)
