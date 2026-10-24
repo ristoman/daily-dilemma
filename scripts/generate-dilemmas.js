@@ -2,8 +2,8 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import Anthropic from "@anthropic-ai/sdk";
-import { sql } from "@vercel/postgres";
-import { drizzle } from "drizzle-orm/vercel-postgres";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import { desc, count } from "drizzle-orm";
 import { dilemmas } from "../lib/db/schema.js";
 import { readContext, writeContext } from "../lib/context.js";
@@ -11,7 +11,7 @@ import { readContext, writeContext } from "../lib/context.js";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 async function generateDilemmas() {
-  const db = drizzle(sql);
+  const db = drizzle(neon(process.env.POSTGRES_URL));
 
   // Fetch existing questions to avoid duplicates
   const existing = await db.select({ question: dilemmas.question }).from(dilemmas);

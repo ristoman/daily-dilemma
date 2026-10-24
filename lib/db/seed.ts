@@ -1,12 +1,12 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
-import { sql } from "@vercel/postgres";
-import { drizzle } from "drizzle-orm/vercel-postgres";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import { dilemmas } from "./schema";
 
 async function seed() {
-  const db = drizzle(sql);
+  const db = drizzle(neon(process.env.POSTGRES_URL!));
 
   const allDilemmas = [
     { question: "Is a hot dog a sandwich?", optionA: "Yes", optionB: "No", publishedDate: "2026-02-15" },
